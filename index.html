@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI & Machine Learning Interactive Quiz Portal</title>
+  <meta name="description" content="Comprehensive interactive quiz collection covering AI History, Machine Learning, Deep Learning, LLMs, RAG, Prompt Engineering, and AI Applications.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(23, 31, 51, 0.7);
+      --card-border: rgba(99, 102, 241, 0.18);
+      --card-hover: rgba(30, 41, 69, 0.95);
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --accent: #06b6d4;
+      --accent-glow: rgba(6, 182, 212, 0.35);
+      --purple: #a855f7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --badge-bg: rgba(99, 102, 241, 0.15);
+      --badge-text: #a5b4fc;
+      --gradient-brand: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #06b6d4 100%);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(6, 182, 212, 0.1) 0px, transparent 60%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      line-height: 1.6;
+      padding-bottom: 4rem;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Header & Hero */
+    header {
+      padding: 3.5rem 0 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      border-radius: 9999px;
+      color: var(--primary-light);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .pill-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .gradient-text {
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+      font-weight: 400;
+    }
+
+    /* Stats Overview */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+
+    .stat-item {
+      background: rgba(30, 41, 69, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      backdrop-filter: blur(6px);
+    }
+
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Controls (Filter + Search) */
+    .controls-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+      background: rgba(18, 24, 38, 0.6);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      border-radius: 16px;
+      padding: 1.25rem;
+      backdrop-filter: blur(12px);
+    }
+
+    @media (min-width: 768px) {
+      .controls-wrapper {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 450px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(11, 15, 25, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.8rem 1rem 0.8rem 2.8rem;
+      color: #fff;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      font-size: 1.1rem;
+    }
+
+    .filters-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .filter-btn:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: #fff;
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary-light);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    }
+
+    /* Quiz Grid */
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.75rem;
+    }
+
+    /* Card */
+    .quiz-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quiz-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-brand);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .quiz-card:hover {
+      transform: translateY(-5px);
+      background: var(--card-hover);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.15);
+    }
+
+    .quiz-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-top {
+      margin-bottom: 1.25rem;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .category-badge {
+      display: inline-block;
+      padding: 0.25rem 0.65rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 6px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .cat-fundamentals {
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .cat-llm {
+      background: rgba(168, 85, 247, 0.15);
+      color: #d8b4fe;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .cat-generative {
+      background: rgba(6, 182, 212, 0.15);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    .cat-advanced {
+      background: rgba(236, 72, 153, 0.15);
+      color: #f472b6;
+      border: 1px solid rgba(236, 72, 153, 0.3);
+    }
+
+    .card-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .quiz-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+      margin-bottom: 0.65rem;
+    }
+
+    .quiz-description {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .card-bottom {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .tags-list {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-launch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--gradient-brand);
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.65rem 1.3rem;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-launch:hover {
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55);
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .file-ref {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state h3 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--primary-light);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <div class="pill-badge">
+        <span class="dot"></span> MCA AI-Tools Collection
+      </div>
+      <h1>
+        AI & Machine Learning <span class="gradient-text">Interactive Quizzes</span>
+      </h1>
+      <p class="subtitle">
+        Explore interactive self-assessment tests on AI History, Deep Learning, Large Language Models, Prompting, and Enterprise AI Architectures.
+      </p>
+
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span class="stat-number">10</span>
+          <span class="stat-label">Total Quizzes</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">100+</span>
+          <span class="stat-label">MCQ Challenges</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">Static</span>
+          <span class="stat-label">Client-Side Ready</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="controls-wrapper">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="quizSearch" class="search-input" placeholder="Search quizzes by title or topic..." aria-label="Search quizzes">
+      </div>
+      <div class="filters-group" id="filterButtons">
+        <button class="filter-btn active" data-filter="all">All Quizzes</button>
+        <button class="filter-btn" data-filter="fundamentals">Fundamentals</button>
+        <button class="filter-btn" data-filter="llm">LLMs & Models</button>
+        <button class="filter-btn" data-filter="generative">Generative & Prompting</button>
+        <button class="filter-btn" data-filter="applications">Applications</button>
+      </div>
+    </div>
+
+    <div class="quiz-grid" id="quizGrid">
+      <!-- Quiz 1 -->
+      <article class="quiz-card" data-category="fundamentals" data-title="ai history quiz alan turing dartmouth eliza alexnet" id="quiz-card-1">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="category-badge cat-fundamentals">Fundamentals</span>
+            <span class="card-number">Quiz 01</span>
+          </div>
+          <h2 class="quiz-title">AI History Quiz</h2>
+          <p class="quiz-description">
+            Test your knowledge on the milestones of Artificial Intelligence: Alan Turing, the 1956 Dartmouth workshop, ELIZA, AI winters, Deep Blue, and modern LLM roots.
+          </p>
+        </div>
+        <div class="card-bottom">
+          <div class="tags-list">
+            <span class="tag">Turing Test</span>
+            <span class="tag">Dartmouth</span>
+            <span class="tag">Milestones</span>
+          </div>
+          <div class="card-actions">
+            <span class="file-ref" title="AI History Quiz.html">AI History Quiz.html</span>
+            <a href="AI%20History%20Quiz.html" class="btn-launch" id="launch-quiz-1">Take Quiz →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Quiz 2 -->
+      <article class="quiz-card" data-category="fundamentals" data-title="types of ai student quiz narrow agi asi reactive memory" id="quiz-card-2">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="category-badge cat-fundamentals">Fundamentals</span>
+            <span class="card-number">Quiz 02</span>
+          </div>
+          <h2 class="quiz-title">Types of AI Quiz</h2>
+          <p class="quiz-description">
+            Differentiate between Narrow AI, General AI (AGI), Superintelligence (ASI), Reactive Machines, Limited Memory, and Theory of Mind models.
+          </p>
+        </div>
+        <div class="card-bottom">
+          <div class="tags-list">
+            <span class="tag">ANI</span>
+            <span class="tag">AGI</span>
+            <span class="tag">Theory of Mind</span>
+          </div>
+          <div class="card-actions">
+            <span class="file-ref" title="Types of AI quiz.html">Types of AI quiz.html</span>
+            <a href="Types%20of%20AI%20quiz.html" class="btn-launch" id="launch-quiz-2">Take Quiz →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Quiz 3 -->
+      <article class="quiz-card" data-category="fundamentals" data-title="ai machine learning deep learning quiz supervised unsupervised reinforcement" id="quiz-card-3">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="category-badge cat-fundamentals">Fundamentals</span>
+            <span class="card-number">Quiz 03</span>
+          </div>
+          <h2 class="quiz-title">AI, ML & DL Quiz</h2>
+          <p class="quiz-description">
+            Covers essential distinctions between Artificial Intelligence, Machine Learning paradigms, Deep Neural Networks, backpropagation, and loss functions.
+          </p>
+        </div>
+        <div class="card-bottom">
+          <div class="tags-list">
+            <span class="tag">Machine Learning</span>
+            <span class="tag">Deep Learning</span>
+            <span class="tag">Neural Nets</span>
+          </div>
+          <div class="card-actions">
+            <span class="file-ref" title="AI, ML & DL Quiz.html">AI, ML &amp; DL Quiz.html</span>
+            <a href="AI,%20ML%20&%20DL%20Quiz.html" class="btn-launch" id="launch-quiz-3">Take Quiz →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Quiz 4 -->
+      <article class="quiz-card" data-category="fundamentals" data-title="unit 1 quiz ai concepts foundation search heuristics agents" id="quiz-card-4">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="category-badge cat-fundamentals">Fundamentals</span>
+            <span class="card-number">Quiz 04</span>
+          </div>
+          <h2 class="quiz-title">Unit 1: AI Concepts</h2>
+          <p class="quiz-description">
+            Comprehensive foundation assessment on intelligent agents, PEAS taxonomy, search algorithms, state space search, and knowledge representation.
+          </p>
+        </div>
+        <div class="card-bottom">
+          <div class="tags-list">
+            <span class="tag">Intelligent Agents</span>
+            <span class="tag">State Space</span>
+            <span class="tag">PEAS</span>
+          </div>
+          <div class="card-actions">
+            <span class="file-ref" title="Unit 1 Quiz.html">Unit 1 Quiz.html</span>
+            <a href="Unit%201%20Quiz.html" class="btn-launch" id="launch-quiz-4">Take Quiz →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Quiz 5 -->
+      <article class="quiz-card" data-category="llm" data-title="unit 2 quiz llm optimization strategies peft lora fine-tuning quantization rlhf" id="quiz-card-5">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="category-badge cat-llm">LLMs & Models</span>
+            <span class="card-number">Quiz 05</span>
+          </div>
+          <h2 class="quiz-title">Unit 2: LLM Optimization</h2>
+          <p class="quiz-description">
+            In-depth quiz focusing on LLM optimization: Parameter-Efficient Fine-Tuning (PEFT), LoRA, QLoRA, Quantization (INT8/4), RLHF, and inference acceleration.
+          </p>
+        </div>
+        <div class="card-bottom">
+          <div class="tags-list">
+            <span class="tag">PEFT & LoRA</span>
+            <span class="tag">Quantization</span>
+            <span class="tag">RLHF</span>
+          </div>
+          <div class="card-actions">
+            <span class="file-ref" title="Unit 2 quiz.html">Unit 2 quiz.html</span>
+            <a href="Unit%202%20quiz.html" class="btn-launch" id="launch-quiz-5">Take Quiz →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Quiz 6 -->
+      <article class="quiz-card" data-category="llm" data-title="large language models transformer engine attention multi-head self-attention encoders decoders" id="quiz-card-6">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="category-badge cat-llm">LLMs & Models</span>
+            <span class="card-number">Quiz 06</span>
+          </div>
+          <h2 class="quiz-title">LLM & Transformer Engine</h2>
+          <p class="quiz-description">
+            Deep dive into the Transformer architecture: Self-attention mechanism, positional encoding, Multi-Head Attention, feedforward layers, and tokenization.
+          </p>
+        </div>
+        <div class="card-bottom">
+          <div class="tags-list">
+            <span class="tag">Transformers</span>
+            <span class="tag">Self-Attention</span>
+            <span class="tag">Decoders</span>
+          </div>
+          <div class="card-actions">
+            <span class="file-ref" title="LLM & Transformer Engine.html">LLM &amp; Transformer Engine.html</span>
+            <a href="LLM%20&%20Transformer%20Engine.html" class="btn-launch" id="launch-quiz-6">Take Quiz →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Quiz 7 -->
+      <article class="quiz-card" data-category="generative" data-title="generative ai prompting quiz zero-shot few-shot chain of thought cot system prompt" id="quiz-card-7">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="category-badge cat-generative">Generative AI</span>
+            <span class="card-number">Quiz 07</span>
+          </div>
+          <h2 class="quiz-title">Generative AI & Prompting</h2>
+          <p class="quiz-description">
+            Master prompt engineering methodologies: Zero-shot, Few-shot prompting, Chain-of-Thought (CoT), temperature, top-p sampling, and hallucination reduction.
+          </p>
+        </div>
+        <div class="card-bottom">
+          <div class="tags-list">
+            <span class="tag">Prompt Engineering</span>
+            <span class="tag">Chain-of-Thought</span>
+            <span class="tag">Sampling</span>
+          </div>
+          <div class="card-actions">
+            <span class="file-ref" title="generative_ai_and_prompting_quiz.html">generative_ai_quiz.html</span>
+            <a href="generative_ai_and_prompting_quiz.html" class="btn-launch" id="launch-quiz-7">Take Quiz →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Quiz 8 -->
+      <article class="quiz-card" data-category="llm" data-title="rag ai hallucinations comparing llms vector database embeddings retrieval augmented generation" id="quiz-card-8">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="category-badge cat-llm">LLMs & Models</span>
+            <span class="card-number">Quiz 08</span>
+          </div>
+          <h2 class="quiz-title">RAG, Hallucinations & LLMs</h2>
+          <p class="quiz-description">
+            Explore Retrieval-Augmented Generation (RAG), vector embeddings, vector databases, mitigation of AI hallucinations, and architectural comparisons across top LLMs.
+          </p>
+        </div>
+        <div class="card-bottom">
+          <div class="tags-list">
+            <span class="tag">RAG Architecture</span>
+            <span class="tag">Vector DBs</span>
+            <span class="tag">Hallucinations</span>
+          </div>
+          <div class="card-actions">
+            <span class="file-ref" title="RAG, AI hallucinations and Comparing LLMs.html">RAG &amp; Comparing LLMs.html</span>
+            <a href="RAG,%20AI%20hallucinations%20and%20Comparing%20LLMs.html" class="btn-launch" id="launch-quiz-8">Take Quiz →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Quiz 9 -->
+      <article class="quiz-card" data-category="applications" data-title="ai tools applications quiz computer vision nlp robotics speech automation" id="quiz-card-9">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="category-badge cat-applications">Applications</span>
+            <span class="card-number">Quiz 09</span>
+          </div>
+          <h2 class="quiz-title">AI Tools & Applications</h2>
+          <p class="quiz-description">
+            Assessment covering applied AI solutions: Computer vision, OCR, speech processing, conversational bots, automated decision engines, and industry workflows.
+          </p>
+        </div>
+        <div class="card-bottom">
+          <div class="tags-list">
+            <span class="tag">Computer Vision</span>
+            <span class="tag">NLP Tools</span>
+            <span class="tag">Practical AI</span>
+          </div>
+          <div class="card-actions">
+            <span class="file-ref" title="Quiz (1).html">Quiz (1).html</span>
+            <a href="Quiz%20(1).html" class="btn-launch" id="launch-quiz-9">Take Quiz →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Quiz 10 -->
+      <article class="quiz-card" data-category="applications" data-title="ai engineering applications master quiz deployment mlops evaluation api pipeline" id="quiz-card-10">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="category-badge cat-applications">Applications</span>
+            <span class="card-number">Quiz 10</span>
+          </div>
+          <h2 class="quiz-title">AI Engineering Master Quiz</h2>
+          <p class="quiz-description">
+            Advanced master evaluation covering end-to-end AI software engineering: pipelines, MLOps, API integration, evaluation benchmarks, and deployment patterns.
+          </p>
+        </div>
+        <div class="card-bottom">
+          <div class="tags-list">
+            <span class="tag">MLOps</span>
+            <span class="tag">Engineering</span>
+            <span class="tag">Production</span>
+          </div>
+          <div class="card-actions">
+            <span class="file-ref" title="quiz (3).html">quiz (3).html</span>
+            <a href="quiz%20(3).html" class="btn-launch" id="launch-quiz-10">Take Quiz →</a>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <h3>No quizzes found</h3>
+      <p>Try searching for a different keyword or select another category filter.</p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>AI Tools Interactive Quiz Portal &bull; Hosted with GitHub Pages &bull; Created for MCA AI Tools</p>
+      <p style="margin-top: 0.5rem; opacity: 0.7;">
+        Repository: <a href="https://github.com/harishdev003/AI-TOOLS" target="_blank" rel="noopener">github.com/harishdev003/AI-TOOLS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const searchInput = document.getElementById('quizSearch');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const quizCards = document.querySelectorAll('.quiz-card');
+    const emptyState = document.getElementById('emptyState');
+
+    let currentFilter = 'all';
+
+    function filterQuizzes() {
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      let visibleCount = 0;
+
+      quizCards.forEach(card => {
+        const category = card.getAttribute('data-category');
+        const searchData = (card.getAttribute('data-title') + ' ' + card.innerText).toLowerCase();
+
+        const matchesCategory = (currentFilter === 'all') || (category === currentFilter);
+        const matchesSearch = !searchTerm || searchData.includes(searchTerm);
+
+        if (matchesCategory && matchesSearch) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    searchInput.addEventListener('input', filterQuizzes);
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.getAttribute('data-filter');
+        filterQuizzes();
+      });
+    });
+  </script>
+</body>
+</html>

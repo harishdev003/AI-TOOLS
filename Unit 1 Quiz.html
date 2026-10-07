@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Concepts Quiz</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --correct-bg: #064e3b;
+      --correct-border: #10b981;
+      --correct-text: #6ee7b7;
+      --wrong-bg: #7f1d1d;
+      --wrong-border: #ef4444;
+      --wrong-text: #fca5a5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .quiz-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      max-width: 600px;
+      width: 100%;
+      padding: 2rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .progress-bar {
+      height: 6px;
+      background-color: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .header {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .question {
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 1.5rem;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .option-btn {
+      background-color: transparent;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      padding: 0.875rem 1rem;
+      text-align: left;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background-color: var(--border);
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+    }
+
+    .option-btn.correct {
+      background-color: var(--correct-bg);
+      border-color: var(--correct-border);
+      color: var(--correct-text);
+      font-weight: 600;
+    }
+
+    .option-btn.wrong {
+      background-color: var(--wrong-bg);
+      border-color: var(--wrong-border);
+      color: var(--wrong-text);
+      font-weight: 600;
+    }
+
+    .feedback {
+      background-color: var(--border);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .next-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .next-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .next-btn.show {
+      display: inline-block;
+    }
+
+    .completed-message {
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .completed-message h2 {
+      margin-bottom: 1rem;
+      font-size: 1.75rem;
+    }
+
+    .completed-message p {
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-card">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+    
+    <div id="quiz-body">
+      <div class="header" id="question-header">Question 1 of 9</div>
+      <div class="question" id="question-text"></div>
+      
+      <div class="options" id="options-container"></div>
+      
+      <div class="feedback" id="feedback"></div>
+      
+      <div class="controls">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
+
+    <div id="completion-screen" style="display: none;" class="completed-message">
+      <h2>🎉 Quiz Complete!</h2>
+      <p>You have finished all questions on core AI concepts.</p>
+      <button class="next-btn show" style="margin: 0 auto;" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        category: "1. The Time Machine Challenge",
+        question: "If you could travel back to 1956, which event would you attend to witness the birth of AI?",
+        options: [
+          "AlphaGo defeats Lee Sedol",
+          "The Dartmouth Workshop",
+          "AlexNet wins ImageNet",
+          "ChatGPT is released"
+        ],
+        correct: 1,
+        hint: "Which event officially started AI as a research field?"
+      },
+      {
+        category: "2. AI Detective",
+        question: "A self-driving car can drive perfectly but cannot solve a math problem or write a poem. What type of AI is it?",
+        options: [
+          "General AI (AGI)",
+          "Superintelligence",
+          "Narrow AI",
+          "Human Intelligence"
+        ],
+        correct: 2,
+        hint: "It performs only one specialized task."
+      },
+      {
+        category: "3. Coffee Test",
+        question: "A robot enters a house it has never seen before, finds the kitchen, locates coffee beans, and makes coffee without instructions. Which AI type would this represent?",
+        options: [
+          "Narrow AI",
+          "General AI (AGI)",
+          "Superintelligence",
+          "Rule-Based AI"
+        ],
+        correct: 1,
+        hint: "Why can't today's AI easily do this?"
+      },
+      {
+        category: "4. Data Detective",
+        question: "A bank wants to predict whether a UPI transaction is Fraud or Genuine. Which Machine Learning technique is most suitable?",
+        options: [
+          "Regression",
+          "Classification",
+          "Clustering",
+          "Reinforcement Learning"
+        ],
+        correct: 1,
+        hint: "Is the output a category or a continuous number?"
+      },
+      {
+        category: "5. Who Learns Like This?",
+        question: "An AI learns to play a game by trying different moves and receiving rewards or penalties. Which learning method is this?",
+        options: [
+          "Supervised Learning",
+          "Unsupervised Learning",
+          "Reinforcement Learning",
+          "Deep Learning"
+        ],
+        correct: 2,
+        hint: "Real Example: AlphaGo learned this way."
+      },
+      {
+        category: "6. Neural Network Puzzle",
+        question: "In a neural network, which layer actually discovers hidden patterns before making the final prediction?",
+        options: [
+          "Input Layer",
+          "Hidden Layer",
+          "Output Layer",
+          "Dataset Layer"
+        ],
+        correct: 1,
+        hint: "It's like students solving a problem step-by-step before writing the final answer."
+      },
+      {
+        category: "7. LLM Logic Test",
+        question: 'When an LLM reads: "The bank of the river was muddy." How does it know that bank means the side of a river instead of a financial institution?',
+        options: [
+          "Random guessing",
+          "Self-Attention in Transformers",
+          "GPS location",
+          "Dictionary lookup only"
+        ],
+        correct: 1,
+        hint: "The surrounding context/words provide the exact meaning."
+      },
+      {
+        category: "8. AI Winter Mystery",
+        question: "Why did the First AI Winter happen?",
+        options: [
+          "AI became too intelligent",
+          "Computers were too powerful",
+          "Expectations were high, but hardware and results couldn't keep up",
+          "There was no internet"
+        ],
+        correct: 2,
+        hint: "Technology sometimes advances slower than inflated expectations."
+      },
+      {
+        category: "9. The Ultimate Thinking Question",
+        question: "Which statement is TRUE?",
+        options: [
+          "All AI is Deep Learning.",
+          "All Machine Learning is Deep Learning.",
+          "All Deep Learning is Machine Learning, but not all Machine Learning is Deep Learning.",
+          "AI and Machine Learning are exactly the same."
+        ],
+        correct: 2,
+        hint: "Think of it like concentric circles: AI > Machine Learning > Deep Learning."
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+
+    const questionHeaderEl = document.getElementById("question-header");
+    const questionTextEl = document.getElementById("question-text");
+    const optionsContainerEl = document.getElementById("options-container");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtnEl = document.getElementById("next-btn");
+    const progressBarEl = document.getElementById("progress");
+    const quizBodyEl = document.getElementById("quiz-body");
+    const completionScreenEl = document.getElementById("completion-screen");
+
+    function loadQuestion() {
+      const q = questions[currentQuestionIndex];
+      
+      // Update header & progress
+      questionHeaderEl.textContent = `${q.category} • Question ${currentQuestionIndex + 1} of ${questions.length}`;
+      questionTextEl.textContent = q.question;
+      progressBarEl.style.width = `${((currentQuestionIndex) / questions.length) * 100}%`;
+
+      // Clear previous options & feedback
+      optionsContainerEl.innerHTML = "";
+      feedbackEl.className = "feedback";
+      feedbackEl.style.display = "none";
+      nextBtnEl.classList.remove("show");
+
+      // Render options
+      q.options.forEach((optText, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerHTML = `<span>${optText}</span>`;
+        btn.onclick = () => selectOption(idx);
+        optionsContainerEl.appendChild(btn);
+      });
+    }
+
+    function selectOption(selectedIndex) {
+      const q = questions[currentQuestionIndex];
+      const buttons = optionsContainerEl.querySelectorAll(".option-btn");
+
+      // Lock all buttons
+      buttons.forEach((btn) => btn.disabled = true);
+
+      if (selectedIndex === q.correct) {
+        buttons[selectedIndex].classList.add("correct");
+        buttons[selectedIndex].innerHTML += ` <span>✅ Correct</span>`;
+        feedbackEl.innerHTML = `<strong>Correct!</strong> ${q.hint}`;
+      } else {
+        buttons[selectedIndex].classList.add("wrong");
+        buttons[selectedIndex].innerHTML += ` <span>❌ Wrong</span>`;
+        buttons[q.correct].classList.add("correct");
+        buttons[q.correct].innerHTML += ` <span>✅ Correct Answer</span>`;
+        feedbackEl.innerHTML = `<strong>Wrong.</strong> The correct answer was: <em>${q.options[q.correct]}</em>.<br><br>💡 <strong>Note:</strong> ${q.hint}`;
+      }
+
+      feedbackEl.style.display = "block";
+      nextBtnEl.classList.add("show");
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showCompletion();
+      }
+    }
+
+    function showCompletion() {
+      progressBarEl.style.width = "100%";
+      quizBodyEl.style.display = "none";
+      completionScreenEl.style.display = "block";
+    }
+
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      quizBodyEl.style.display = "block";
+      completionScreenEl.style.display = "none";
+      loadQuestion();
+    }
+
+    // Initialize on page load
+    loadQuestion();
+  </script>
+</body>
+</html>

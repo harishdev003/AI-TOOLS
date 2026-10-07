@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Engineering & Applications Master Quiz</title>
+<style>
+  :root {
+    --bg-color: #f1f5f9;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    
+    /* Correct Answer Colors */
+    --correct-bg: #ecfdf5;
+    --correct-border: #059669;
+    --correct-text: #065f46;
+    
+    /* Wrong Answer Colors */
+    --wrong-bg: #fef2f2;
+    --wrong-border: #dc2626;
+    --wrong-text: #991b1b;
+    
+    /* Option Button Colors */
+    --opt-bg: #f8fafc;
+    --opt-border: #cbd5e1;
+    --opt-hover-bg: #eff6ff;
+    --opt-hover-border: #93c5fd;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .quiz-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 680px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .header-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .topic-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.075em;
+    background-color: #dbeafe;
+    color: #1e40af;
+    padding: 5px 14px;
+    border-radius: 9999px;
+  }
+
+  .counter {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .question-text {
+    font-size: 1.25rem;
+    line-height: 1.5;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option-btn {
+    background-color: var(--opt-bg);
+    border: 2px solid var(--opt-border);
+    color: var(--text-main);
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.98rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+    line-height: 1.45;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    background-color: var(--opt-hover-bg);
+    border-color: var(--opt-hover-border);
+    color: #1e3a8a;
+  }
+
+  .option-btn:disabled {
+    cursor: default;
+  }
+
+  /* User picked the right answer */
+  .option-btn.selected-correct {
+    background-color: var(--correct-bg) !important;
+    border-color: var(--correct-border) !important;
+    color: var(--correct-text) !important;
+    font-weight: 600;
+  }
+
+  /* User picked the wrong answer */
+  .option-btn.selected-wrong {
+    background-color: var(--wrong-bg) !important;
+    border-color: var(--wrong-border) !important;
+    color: var(--wrong-text) !important;
+    font-weight: 600;
+  }
+
+  /* Reveals the correct answer when the user made a mistake */
+  .option-btn.show-correct {
+    background-color: #f0fdf4 !important;
+    border-color: var(--correct-border) !important;
+    color: var(--correct-text) !important;
+    font-weight: 700;
+  }
+
+  .feedback-box {
+    display: none;
+    padding: 16px 20px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .feedback-box.correct {
+    display: block;
+    background-color: var(--correct-bg);
+    border: 1.5px solid var(--correct-border);
+    color: var(--correct-text);
+  }
+
+  .feedback-box.wrong {
+    display: block;
+    background-color: var(--wrong-bg);
+    border: 1.5px solid var(--wrong-border);
+    color: var(--wrong-text);
+  }
+
+  .action-container {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .next-btn {
+    display: none;
+    background-color: var(--primary);
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .next-btn:hover {
+    background-color: var(--primary-hover);
+    box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.3);
+  }
+
+  .end-message {
+    text-align: center;
+    padding: 40px 0;
+  }
+
+  .end-message h2 {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+    color: var(--text-main);
+  }
+
+  .end-message p {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="quiz-card" id="quizCard">
+  <div class="header-meta">
+    <span class="topic-tag" id="topicTag">Topic</span>
+    <span class="counter" id="counter">Question 1 of 22</span>
+  </div>
+
+  <div class="question-text" id="questionText">Loading question...</div>
+
+  <div class="options-container" id="optionsContainer"></div>
+
+  <div class="feedback-box" id="feedbackBox"></div>
+
+  <div class="action-container">
+    <button class="next-btn" id="nextBtn">Next Question &rarr;</button>
+  </div>
+</div>
+
+<script>
+const quizData = [
+  {
+    topic: "AI Coding Assistants",
+    question: "How do tools like GitHub Copilot and Amazon CodeWhisperer generate code completions while you type?",
+    options: [
+      "They run live web search queries across GitHub repositories on every single keystroke.",
+      "They act as mathematical pattern inference engines calculating next-token probabilities given active prompt context.",
+      "They connect to a private remote server of human engineers answering queries in real time.",
+      "They compile the source code into binary and match assembly instructions against a lookup table."
+    ],
+    answer: 1,
+    explanation: "AI coding assistants do not search the web for every keystroke; they extract prompt context and run mathematical next-token probability inferences."
+  },
+  {
+    topic: "AI Coding Assistants",
+    question: "When GitHub Copilot predicts multi-line completions in your editor before you press Tab, what is that preview called?",
+    options: [
+      "Ghost Text",
+      "Shadow Script",
+      "Phantom Logic",
+      "Hover Snippet"
+    ],
+    answer: 0,
+    explanation: "Copilot renders suggested completions as inline 'Ghost Text' that can be accepted using the Tab key."
+  },
+  {
+    topic: "Amazon Q Developer",
+    question: "Amazon CodeWhisperer evolved into Amazon Q Developer. What unique capability does it offer to prevent copyright infringement?",
+    options: [
+      "It outright denies code generation if connected to the internet.",
+      "It includes a Code Reference Tracker that flags code resembling licensed open-source repos with license attribution and URLs.",
+      "It forces developers to purchase commercial licenses before typing any AWS API calls.",
+      "It automatically scrambles all variable names to bypass copyright checks."
+    ],
+    answer: 1,
+    explanation: "Amazon Q Developer's Code Reference Tracker detects similarities to public code and provides repository references, URLs, and licensing info."
+  },
+  {
+    topic: "Responsible Coding",
+    question: "If an AI coding assistant suggests code containing a critical SQL injection vulnerability and it is committed to production, who bears responsibility?",
+    options: [
+      "The cloud provider hosting the foundational LLM.",
+      "The software developer and team who critically inspected and committed the code.",
+      "The open-source author whose public repository was ingested during training.",
+      "No one, because AI code suggestions are classified as experimental under software law."
+    ],
+    answer: 1,
+    explanation: "AI tools amplify developer speed but cannot assume architectural or legal responsibility; human programmers remain solely accountable."
+  },
+  {
+    topic: "AutoML vs. Analytics",
+    question: "What is the primary function of Automated Machine Learning (AutoML) in a modern enterprise analytics pipeline?",
+    options: [
+      "It generates natural-language executive summaries of historical data dashboards.",
+      "It automates data preprocessing, algorithm benchmarking, and hyperparameter tuning to build predictive models.",
+      "It eliminates the need to gather raw training data entirely.",
+      "It acts as a hardware sensor directly measuring real-world metric spikes."
+    ],
+    answer: 1,
+    explanation: "AutoML automates data preprocessing, model selection (e.g., Random Forest, XGBoost), and hyperparameter tuning to deliver the best predictive model."
+  },
+  {
+    topic: "AI-Assisted Insights",
+    question: "A traditional dashboard shows: 'First-year student attendance dropped to 78%.' What would an AI-assisted narrative insight provide instead?",
+    options: [
+      "A duplicate chart rendered in 3D bar graphs.",
+      "A contextual explanation: 'Attendance dropped by 8.4% primarily due to Friday afternoon lectures; recommend rescheduling labs to mornings.'",
+      "An automated deletion of records of all absent students.",
+      "A generic statement that all student marks should be curved upwards."
+    ],
+    answer: 1,
+    explanation: "AI-assisted insights move beyond static numbers to generate contextual causal narratives and actionable recommendations."
+  },
+  {
+    topic: "Pattern Recognition",
+    question: "Which of the following is a classic example of computational pattern recognition across large transaction datasets?",
+    options: [
+      "Compiling Java code into bytecode.",
+      "Market Basket analysis finding that buying Bread and Butter leads to a 64% likelihood of buying Jam.",
+      "Encrypting user passwords with salt and hash algorithms.",
+      "Replacing dirty strings with random numbers."
+    ],
+    answer: 1,
+    explanation: "Market Basket analysis uncovers hidden associations and item affinities across millions of records that exceed human manual observation."
+  },
+  {
+    topic: "Data Analytics Pitfalls",
+    question: "A data pipeline discovers that ice cream sales and swimming pool drownings are strongly correlated. What danger does this highlight?",
+    options: [
+      "Spurious correlation: a mathematical relationship caused by an external confounding factor (hot weather), not true causation.",
+      "Model overfitting caused by insufficient training epochs.",
+      "A hardware GPU arithmetic underflow error.",
+      "Quantization error in the neural network's activation functions."
+    ],
+    answer: 0,
+    explanation: "Spurious correlation occurs when statistical patterns appear linked without causal reality—requiring human domain validation."
+  },
+  {
+    topic: "Diffusion Mechanics",
+    question: "How do Diffusion Models (such as Stable Diffusion and DALL-E) differ fundamentally from GANs in generating imagery?",
+    options: [
+      "They generate the entire image in a single neural network pass.",
+      "They learn to reverse an entropy process by systematically subtracting predicted Gaussian noise over multiple iterative steps.",
+      "They stitch together preexisting JPEG photos downloaded from the web.",
+      "They only work with vector SVG geometry, not raster pixels."
+    ],
+    answer: 1,
+    explanation: "Diffusion models start from pure Gaussian noise and iteratively predict and subtract noise components to reveal structured imagery."
+  },
+  {
+    topic: "Diffusion Mechanics",
+    question: "During reverse denoising in a diffusion model, what emerges during the final inference steps?",
+    options: [
+      "Overall canvas composition, horizon line, and macro geometry.",
+      "Micro-textures, fine reflections, whiskers, and high-frequency surface details.",
+      "The initial random Gaussian noise distribution.",
+      "The prompt text token embeddings."
+    ],
+    answer: 1,
+    explanation: "Macro geometry and lighting emerge early; fine high-frequency details, micro-textures, and sharp reflections are resolved in final steps."
+  },
+  {
+    topic: "Latent Diffusion Architecture",
+    question: "Why do modern models like Stable Diffusion operate in a compressed 'Latent Space' via a Variational Autoencoder (VAE) rather than raw pixel space?",
+    options: [
+      "Raw pixel space is computationally prohibitive for high-resolution iterative diffusion.",
+      "Operating in pixel space produces black-and-white images only.",
+      "Latent space prevents users from entering unsafe prompts.",
+      "VAE models completely eliminate the need for GPU acceleration."
+    ],
+    answer: 0,
+    explanation: "Diffusing in a low-dimensional latent space drastically lowers compute requirements while allowing the VAE decoder to reconstruct crisp RGB pixels."
+  },
+  {
+    topic: "Image Generation Models",
+    question: "Which image generation tool is distinguished by open model weights, local GPU self-hosting, and modular extensions like ControlNet and LoRAs?",
+    options: [
+      "OpenAI DALL-E 3",
+      "Midjourney",
+      "Stable Diffusion",
+      "Adobe Firefly Web App"
+    ],
+    answer: 2,
+    explanation: "Stable Diffusion is renowned for its open ecosystem, enabling local deployment, custom checkpoint training, ControlNet, and LoRA adapters."
+  },
+  {
+    topic: "Image Generation Tools",
+    question: "What is Midjourney's primary architectural and operational design philosophy compared to Stable Diffusion?",
+    options: [
+      "Providing open raw weights for local air-gapped data centers.",
+      "Prioritizing default painterly aesthetics, cinematic lighting, and atmospheric realism via a hosted Discord/web interface.",
+      "Enabling precise programmatic ControlNet poses via command-line arguments.",
+      "Restricting generations strictly to vectorized diagram schematics."
+    ],
+    answer: 1,
+    explanation: "Midjourney focuses heavily on out-of-the-box aesthetic harmony, volumetric lighting, and painterly quality without complex manual tuning."
+  },
+  {
+    topic: "Multimodal AI",
+    question: "How do Vision-Language Models (VLMs) enable an LLM to 'read' an image alongside text prompts?",
+    options: [
+      "They convert images into ASCII art text strings.",
+      "Images are sliced into patches by a Vision Transformer (ViT) and projected as visual tokens into the LLM's unified embedding space.",
+      "They run standard Tesseract OCR and delete all color channels.",
+      "They search Google Images for the file name of the upload."
+    ],
+    answer: 1,
+    explanation: "Vision Transformers divide images into patches (e.g., 16x16), which a projection layer maps into visual tokens processed alongside text tokens."
+  },
+  {
+    topic: "Multimodal AI",
+    question: "What architectural advantage does GPT-4o offer over older daisy-chained pipelines (STT -> LLM -> TTS)?",
+    options: [
+      "It operates as a single omni-modal network natively processing text, vision, and audio with conversational ~320ms latency.",
+      "It requires three separate cloud subscriptions to process a single audio query.",
+      "It drops image resolution down to 100x100 pixels to conserve bandwidth.",
+      "It ignores audio tone and pauses completely."
+    ],
+    answer: 0,
+    explanation: "GPT-4o was trained end-to-end across text, vision, and audio, eliminating cascading latencies of multi-model pipelines."
+  },
+  {
+    topic: "Multimodal Systems",
+    question: "Which feature distinguishes Google Gemini (e.g., Gemini 1.5 Pro) in multimodal benchmarks?",
+    options: [
+      "Its inability to parse video files longer than 10 seconds.",
+      "A massive context window (1M to 2M+ tokens) capable of analyzing hours of video feeds and extensive technical documents.",
+      "It only accepts typed text commands in Python syntax.",
+      "It refuses to parse handwritten mathematical formulas."
+    ],
+    answer: 1,
+    explanation: "Gemini features an industry-leading context window capable of ingesting massive video recordings, textbooks, and long codebases natively."
+  },
+  {
+    topic: "Multimodal Failure Modes",
+    question: "What is a well-documented weakness of current Vision-Language Models when analyzing busy real-world photos?",
+    options: [
+      "They cannot recognize any colors except red and blue.",
+      "They struggle with precise spatial relationships (e.g., in-front vs. behind) and counting identical items in crowded scenes.",
+      "They crash whenever an image contains alphanumeric text.",
+      "They invert the vertical orientation of every uploaded image."
+    ],
+    answer: 1,
+    explanation: "Transformers struggle with exact geometric coordinate reasoning, bounding box precision, and counting numerous identical objects."
+  },
+  {
+    topic: "AI Content Detection",
+    question: "Statistical AI text detectors primarily measure 'perplexity' and 'burstiness'. What does high 'burstiness' indicate?",
+    options: [
+      "The text has a uniform, metronomic sentence rhythm characteristic of AI models.",
+      "The text exhibits significant natural variation in sentence length, structure, and pacing—typical of human authors.",
+      "The document has exceeded the memory buffer of the server.",
+      "The author has deliberately injected programming syntax into prose."
+    ],
+    answer: 1,
+    explanation: "Humans naturally write with high burstiness (mixing short punchy sentences with long complex thoughts); LLMs tend to be uniform."
+  },
+  {
+    topic: "AI Content Detection",
+    question: "Why do universities and enterprises avoid relying on AI text detectors as sole proof for disciplinary action?",
+    options: [
+      "They have unacceptably high false-positive rates, frequently misflagging non-native English speakers who write in formal styles.",
+      "Statistical detectors can be easily evaded through simple paraphrasing and synonym replacement.",
+      "They yield probabilistic guesses rather than legally binding forensic audit trails.",
+      "All of the above."
+    ],
+    answer: 3,
+    explanation: "AI text detectors are probabilistic signals prone to false positives (especially for ESL writers) and are easily evaded with light editing."
+  },
+  {
+    topic: "Watermarking",
+    question: "How does an invisible latent watermark (such as Google SynthID) differ from a visible watermark stamp?",
+    options: [
+      "Invisible watermarks are easily erased by cropping the outer border of the picture.",
+      "Invisible watermarks embed subtle mathematical frequency signatures that survive compression, resizing, and color edits without altering visual appearance.",
+      "Invisible watermarks place a faint, semi-transparent text banner across the center of the image.",
+      "Invisible watermarks require a UV blacklight monitor to be viewed."
+    ],
+    answer: 1,
+    explanation: "Latent invisible watermarks modify frequency components or noise distributions imperceptibly, resisting cropping and compression."
+  },
+  {
+    topic: "Content Provenance",
+    question: "What core mechanism does the Coalition for Content Provenance and Authenticity (C2PA) standard use to verify media authenticity?",
+    options: [
+      "Running statistical burstiness checks on image pixels.",
+      "Attaching cryptographically signed, tamper-evident metadata detailing origin capture and intermediate edit histories.",
+      "Requiring government IDs to be watermarked onto every image.",
+      "Deleting any file that does not contain GPS location headers."
+    ],
+    answer: 1,
+    explanation: "C2PA relies on cryptographic manifests and public-key infrastructure to provide an immutable audit trail of how media was created and edited."
+  },
+  {
+    topic: "Responsible AI & Ethics",
+    question: "Under the 'Five Pillars of Trustworthy AI', why is the principle of Human Accountability non-negotiable?",
+    options: [
+      "Because algorithms possess their own corporate legal entity status under modern law.",
+      "Because AI systems cannot bear legal, moral, or professional liability; human creators and operators remain solely responsible for deployed outputs.",
+      "Because AI models must be allowed to vote on software architectural decisions.",
+      "Because humans are legally required to type every single character of production source code."
+    ],
+    answer: 1,
+    explanation: "Algorithms have no moral agency or legal liability; human professionals remain fully accountable for any deployed system or output."
+  }
+];
+
+let currentIndex = 0;
+let answered = false;
+
+const topicTag = document.getElementById("topicTag");
+const counter = document.getElementById("counter");
+const questionText = document.getElementById("questionText");
+const optionsContainer = document.getElementById("optionsContainer");
+const feedbackBox = document.getElementById("feedbackBox");
+const nextBtn = document.getElementById("nextBtn");
+const quizCard = document.getElementById("quizCard");
+
+function loadQuestion(index) {
+  answered = false;
+  const q = quizData[index];
+
+  topicTag.textContent = q.topic;
+  counter.textContent = `Question ${index + 1} of ${quizData.length}`;
+  questionText.textContent = q.question;
+
+  feedbackBox.className = "feedback-box";
+  feedbackBox.textContent = "";
+  feedbackBox.style.display = "none";
+  nextBtn.style.display = "none";
+
+  optionsContainer.innerHTML = "";
+
+  q.options.forEach((optText, optIdx) => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = optText;
+    btn.onclick = () => selectOption(optIdx);
+    optionsContainer.appendChild(btn);
+  });
+}
+
+function selectOption(selectedIdx) {
+  if (answered) return;
+  answered = true;
+
+  const q = quizData[currentIndex];
+  const buttons = optionsContainer.querySelectorAll(".option-btn");
+
+  // Lock all options immediately
+  buttons.forEach(btn => btn.disabled = true);
+
+  if (selectedIdx === q.answer) {
+    buttons[selectedIdx].classList.add("selected-correct");
+    feedbackBox.className = "feedback-box correct";
+    feedbackBox.innerHTML = `<strong>Correct!</strong> ${q.explanation}`;
+  } else {
+    buttons[selectedIdx].classList.add("selected-wrong");
+    buttons[q.answer].classList.add("show-correct");
+    feedbackBox.className = "feedback-box wrong";
+    feedbackBox.innerHTML = `<strong>Wrong.</strong> The correct answer was: <em>"${q.options[q.answer]}"</em><br><br>${q.explanation}`;
+  }
+
+  feedbackBox.style.display = "block";
+  nextBtn.style.display = "inline-block";
+}
+
+nextBtn.onclick = () => {
+  currentIndex++;
+  if (currentIndex < quizData.length) {
+    loadQuestion(currentIndex);
+  } else {
+    showEndScreen();
+  }
+};
+
+function showEndScreen() {
+  quizCard.innerHTML = `
+    <div class="end-message">
+      <h2>🎉 Module Complete!</h2>
+      <p>You have reviewed all 22 questions covering AI Pair Programming, AutoML, Latent Diffusion Models, Multimodal AI, and Provenance/Ethics.</p>
+    </div>
+  `;
+}
+
+// Start Quiz
+loadQuestion(currentIndex);
+</script>
+
+</body>
+</html>

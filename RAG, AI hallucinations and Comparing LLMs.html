@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Knowledge Quiz - Thinking Edition</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --accent: #d97706;
+      --correct-bg: #dcfce7;
+      --correct-text: #166534;
+      --wrong-bg: #fee2e2;
+      --wrong-text: #991b1b;
+      --border: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    /* Fixed body to exactly 100vh without page scrolling */
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+      padding: 12px;
+      overflow: hidden;
+    }
+
+    /* Container fitted inside 100vh */
+    .quiz-container {
+      background-color: var(--card);
+      border-radius: 16px;
+      padding: 16px 20px;
+      width: 100%;
+      max-width: 680px;
+      max-height: calc(100vh - 24px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .counter {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .topic-tag {
+      background-color: rgba(37, 99, 235, 0.1);
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Reliable SVG Illustrations */
+    .image-box {
+      width: 100%;
+      height: 110px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      background-color: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .image-box svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .question {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.35;
+      color: #000000;
+    }
+
+    .thought-box {
+      background-color: rgba(217, 119, 6, 0.08);
+      border-left: 4px solid var(--accent);
+      padding: 8px 12px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 12px;
+      font-size: 0.82rem;
+      color: #92400e;
+      font-weight: 600;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .option-btn {
+      background-color: var(--card);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background-color: rgba(37, 99, 235, 0.05);
+      border-color: var(--primary);
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+    }
+
+    /* Animation on Correct */
+    @keyframes celebrate {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      50% { transform: scale(1.02); box-shadow: 0 0 10px 6px rgba(34, 197, 94, 0.3); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    .option-btn.correct {
+      background-color: var(--correct-bg);
+      border-color: var(--correct-text);
+      color: var(--correct-text);
+      animation: celebrate 0.4s ease-out;
+    }
+
+    .option-btn.wrong {
+      background-color: var(--wrong-bg);
+      border-color: var(--wrong-text);
+      color: var(--wrong-text);
+    }
+
+    .feedback {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      display: none;
+      font-size: 0.85rem;
+    }
+
+    .feedback.correct-text {
+      display: block;
+      background-color: var(--correct-bg);
+      color: var(--correct-text);
+      border: 1px solid var(--correct-text);
+    }
+
+    .feedback.wrong-text {
+      display: block;
+      background-color: var(--wrong-bg);
+      color: var(--wrong-text);
+      border: 1px solid var(--wrong-text);
+    }
+
+    .next-btn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+    }
+
+    .next-btn:hover {
+      background-color: #1d4ed8;
+    }
+
+    .end-screen {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .end-screen h2 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .end-screen p {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div id="quiz-ui">
+    <div class="header">
+      <span class="counter" id="question-counter">Question 1 of 20</span>
+      <span class="topic-tag" id="topic-tag">Thinking Challenge</span>
+    </div>
+
+    <!-- Inline SVG image block ensures instant offline loading without broken links -->
+    <div class="image-box" id="image-box"></div>
+
+    <div class="question" id="question-text">Loading question...</div>
+
+    <div class="thought-box" id="thought-text">🤔 Take a moment to think...</div>
+    
+    <div class="options" id="options-container"></div>
+    
+    <div class="feedback" id="feedback"></div>
+    
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question ➔</button>
+  </div>
+
+  <div id="end-screen" class="end-screen" style="display: none;">
+    <h2>🎉 Challenge Complete!</h2>
+    <p>Great thinking! You explored all 20 interactive concepts on AI, RAG Frameworks, and LLMs.</p>
+  </div>
+</div>
+
+<script>
+  // Collection of standalone SVG vector art guaranteed to render offline without network issues
+  const svgIcons = {
+    rag: `<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="120" fill="#e0f2fe"/><rect x="30" y="30" width="80" height="60" rx="8" fill="#0284c7"/><text x="70" y="65" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">DB Search</text><path d="M 120 60 L 160 60" stroke="#0284c7" stroke-width="4" marker-end="url(#arrow)"/><rect x="170" y="30" width="80" height="60" rx="8" fill="#2563eb"/><text x="210" y="65" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">Context</text><path d="M 260 60 L 300 60" stroke="#2563eb" stroke-width="4"/><rect x="310" y="30" width="60" height="60" rx="8" fill="#16a34a"/><text x="340" y="65" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">LLM</text></svg>`,
+    time: `<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="120" fill="#fef3c7"/><circle cx="200" cy="60" r="40" fill="#d97706"/><path d="M 200 30 L 200 60 L 220 70" stroke="#fff" stroke-width="5" stroke-linecap="round"/><line x1="120" y1="60" x2="280" y2="60" stroke="#b45309" stroke-width="3" stroke-dasharray="6,6"/></svg>`,
+    search: `<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="120" fill="#f1f5f9"/><circle cx="180" cy="55" r="28" stroke="#2563eb" stroke-width="6" fill="none"/><line x1="202" y1="77" x2="235" y2="100" stroke="#2563eb" stroke-width="8" stroke-linecap="round"/></svg>`,
+    vector: `<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="120" fill="#f3e8ff"/><circle cx="100" cy="80" r="8" fill="#9333ea"/><circle cx="200" cy="30" r="8" fill="#9333ea"/><circle cx="300" cy="70" r="8" fill="#9333ea"/><line x1="100" y1="80" x2="200" y2="30" stroke="#a855f7" stroke-width="3"/><line x1="200" y1="30" x2="300" y2="70" stroke="#a855f7" stroke-width="3"/></svg>`,
+    database: `<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="120" fill="#e0e7ff"/><ellipse cx="200" cy="35" rx="60" ry="15" fill="#4f46e5"/><path d="M 140 35 L 140 85 C 140 100 260 100 260 85 L 260 35" fill="none" stroke="#4f46e5" stroke-width="4"/><ellipse cx="200" cy="60" rx="60" ry="12" fill="none" stroke="#4f46e5" stroke-width="3"/></svg>`,
+    book: `<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="120" fill="#dcfce7"/><rect x="140" y="25" width="120" height="70" rx="5" fill="#16a34a"/><line x1="200" y1="25" x2="200" y2="95" stroke="#fff" stroke-width="4"/><line x1="155" y1="45" x2="185" y2="45" stroke="#fff" stroke-width="3"/><line x1="155" y1="60" x2="185" y2="60" stroke="#fff" stroke-width="3"/><line x1="215" y1="45" x2="245" y2="45" stroke="#fff" stroke-width="3"/></svg>`,
+    privacy: `<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="120" fill="#fee2e2"/><path d="M 200 30 L 240 45 C 240 80 200 95 200 95 C 200 95 160 80 160 45 Z" fill="#dc2626"/><circle cx="200" cy="58" r="7" fill="#fff"/><rect x="196" y="58" width="8" height="12" fill="#fff"/></svg>`,
+    ai: `<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="120" fill="#e0f2fe"/><rect x="160" y="30" width="80" height="60" rx="12" fill="#0284c7"/><circle cx="185" cy="50" r="6" fill="#fff"/><circle cx="215" cy="50" r="6" fill="#fff"/><path d="M 185 70 Q 200 80 215 70" stroke="#fff" stroke-width="4" fill="none"/></svg>`
+  };
+
+  const quizData = [
+    {
+      q: "What does RAG stand for, and why is it a game-changer for AI?",
+      tag: "RAG Foundation",
+      svg: svgIcons.rag,
+      thought: "💡 RAG connects an AI's brain to a library of facts. How does that change what it can do?",
+      options: ["Random Automated Generation", "Retrieval Augmented Generation", "Real-time AI Grounding", "Recurrent Auxiliary Gating"],
+      answer: 1
+    },
+    {
+      q: "A standard pre-trained LLM is like a person with an amazing memory but who is 'locked in time'. What problem does this cause?",
+      tag: "LLM Limitations",
+      svg: svgIcons.time,
+      thought: "💡 If an LLM is frozen, can it naturally answer 'What is the price of gold today?' without RAG?",
+      options: ["They cannot generate text in different styles", "They are locked to their training cutoff date", "They cannot process image or audio files", "They automatically stop working after an hour"],
+      answer: 1
+    },
+    {
+      q: "Imagine you are designing a RAG system. What step MUST happen first after a user submits a prompt?",
+      tag: "Workflow Design",
+      svg: svgIcons.search,
+      thought: "💡 Before the AI speaks, it must 'search'. Where does it look, and why?",
+      options: ["Vector Search in a database for relevant context", "LLM Answer Synthesis without context", "Fine-Tuning the entire neural network", "Fact Verification of its internal database"],
+      answer: 0
+    },
+    {
+      q: "How does an 'Embedding Model' help an AI understand meaning, and what does it convert text into?",
+      tag: "The Math of AI",
+      svg: svgIcons.vector,
+      thought: "💡 If words are math, can the computer see how close 'cat' is to 'kitten' without specific programming?",
+      options: ["Vector Database entries", "Embedding Model outputs (numerical vectors)", "SQL Query formats", "Output Tokenizer results"],
+      answer: 1
+    },
+    {
+      q: "A standard database matches words. What matches concepts and meanings, and what are Pinecone, ChromaDB, and FAISS examples of?",
+      tag: "The AI Tech Stack",
+      svg: svgIcons.database,
+      thought: "💡 What kind of specialized database do you need to store millions of mathematical word vectors?",
+      options: ["LLM Language Engines", "Embedding Converter Tools", "Vector Databases", "Prompt Engineering Frameworks"],
+      answer: 2
+    },
+    {
+      q: "If an AI is taking a 'closed-book test' purely from memory, it's not using RAG. What is the RAG analogy?",
+      tag: "Critical Thinking",
+      svg: svgIcons.book,
+      thought: "💡 Which test strategy reduces guessing and ensures accurate sourcing?",
+      options: ["Writing an essay blindness test", "Taking an open-book exam using an index catalog", "Calculating math problems blindly", "Translating a foreign text blind"],
+      answer: 1
+    },
+    {
+      q: "How can a company use a powerful public LLM on its secret data safely? What keeps the data secure?",
+      tag: "Data Privacy",
+      svg: svgIcons.privacy,
+      thought: "💡 Private data stays behind a wall. How does the AI get to see it without learning it forever?",
+      options: ["It publishes private data globally", "It retrains a public ChatGPT on the dataset", "It sends only relevant context chunks during queries, not the whole dataset", "It permanent deletes old user queries"],
+      answer: 2
+    },
+    {
+      q: "Which of these is NOT a real-world advantage of RAG, and why?",
+      tag: "Advantages",
+      svg: svgIcons.rag,
+      thought: "💡 RAG saves massive retraining costs, but does it make specialized vector storage hardware free?",
+      options: ["Instant access to live, up-to-date information", "Dramatically less prone to errors or hallucinations", "Elimination of vector database infrastructure costs", "Much cheaper than retraining multi-billion parameter LLMs"],
+      answer: 2
+    },
+    {
+      q: "What is the critical risk if your RAG 'retriever' is poorly configured?",
+      tag: "System Design",
+      svg: svgIcons.search,
+      thought: "💡 If the retriever cannot find the right facts, does the AI still know what to say?",
+      options: ["The LLM falls back to standard parametric guessing", "The entire computer reboots automatically", "The LLM begins fine-tuning itself", "The database erases all old records"],
+      answer: 0
+    },
+    {
+      q: "What is an 'AI Hallucination', and why does it sound so convincing?",
+      tag: "AI Mechanics",
+      svg: svgIcons.ai,
+      thought: "💡 It’s designed to write fluently, but can it write fiction confidently while trying to present facts?",
+      options: ["When an AI creates colorful graphics on-screen", "When an LLM confidently generates false or fabricated information", "When a database corrupts data accidentally", "When an LLM generates responses much faster than usual"],
+      answer: 1
+    },
+    {
+      q: "Why do standard LLMs naturally hallucinate when they aren't sure of an answer?",
+      tag: "System Design",
+      svg: svgIcons.ai,
+      thought: "💡 It predicts the next token. If 'I don't know' is statistically unlikely, what does it predict instead?",
+      options: ["They are programmed to intentionally lie", "They guess word tokens based on statistical probability", "They purposely mislead humans", "They pull facts from live human thoughts"],
+      answer: 1
+    },
+    {
+      q: "A famous danger of AI hallucination saw a chatbot 'prescribe' drug dosages that didn't exist. What is this an example of?",
+      tag: "Real World Impact",
+      svg: svgIcons.privacy,
+      thought: "💡 This really happened! How would you fact-check this as a human?",
+      options: ["Context window failure", "Prompt engineering glitch", "Real-world impact of AI hallucinations", "Vector database overflow"],
+      answer: 2
+    },
+    {
+      q: "Which parameter helps minimize randomness when an AI needs to stick strictly to facts?",
+      tag: "Tuning AI",
+      svg: svgIcons.vector,
+      thought: "💡 If temperature = 1.0 is creative, what is deterministic?",
+      options: ["Setting temperature = 0.0", "Setting temperature = 1.0", "Increasing context limits", "Decreasing chunk size"],
+      answer: 0
+    },
+    {
+      q: "How can prompt engineering prevent an AI from confidently giving a wrong answer when context is missing?",
+      tag: "Prompt Engineering",
+      svg: svgIcons.book,
+      thought: "💡 How do you tell the AI 'If you don't know the answer, say I don't know'?",
+      options: ["Removing formatting from the prompt", "Writing the prompt in all lowercase letters", "Instructing: 'Answer ONLY using provided context. If context is missing, say I don't know.'", "Asking the AI to repeat the question first"],
+      answer: 2
+    },
+    {
+      q: "Which model from OpenAI natively integrates text, vision, and real-time audio?",
+      tag: "Modern LLMs",
+      svg: svgIcons.ai,
+      thought: "💡 It can reason in real-time across voice and sight. What is it?",
+      options: ["Claude 3.5 Sonnet", "GPT-4o", "LLaMA 3", "Mistral Small"],
+      answer: 1
+    },
+    {
+      q: "Anthropic Claude 3.5 Sonnet is recognized for leading industry benchmarks in coding and complex writing. What is it particularly good at?",
+      tag: "Modern LLMs",
+      svg: svgIcons.book,
+      thought: "💡 How does Sonnet achieve clear, human-sounding prose for complex research?",
+      options: ["A 200,000+ token context window and natural writing tone", "Operating fully without an internet connection", "Native integration with Google Docs", "Running locally on mobile phones"],
+      answer: 0
+    },
+    {
+      q: "What is the massive context window of Google Gemini 1.5 Pro, and what does it allow it to process in one prompt?",
+      tag: "Modern LLMs",
+      svg: svgIcons.database,
+      thought: "💡 You could give it a whole video file or entire textbook in a single go. How long is its token context?",
+      options: ["8,000 tokens", "32,000 tokens", "128,000 tokens", "1 Million tokens"],
+      answer: 3
+    },
+    {
+      q: "Meta LLaMA 3 and Mistral are examples of 'open weights' models. Why are they valued?",
+      tag: "Open Source AI",
+      svg: svgIcons.vector,
+      thought: "💡 If you own a powerful computer, you can run LLaMA 3 locally. Does that cost anything beyond hardware and electricity?",
+      options: ["They cost high monthly subscription fees", "Developers can download, modify, and fine-tune them locally without API costs", "They don't allow modification by programmers", "They automatic delete all user queries permanently"],
+      answer: 1
+    },
+    {
+      q: "Mistral Small is lightweight enough to run on high-end edge devices. What innovative architecture did it pioneer for efficiency?",
+      tag: "Modern LLMs",
+      svg: svgIcons.rag,
+      thought: "💡 MoE uses subnetworks to process different kinds of data. What is MoE?",
+      options: ["Dense Neural Transformer", "Recurrent Feedback Loop", "Mixture-of-Experts (MoE)", "Convolutional Filter Matrix"],
+      answer: 2
+    },
+    {
+      q: "How does RAG directly mitigate AI hallucinations?",
+      tag: "Summary",
+      svg: svgIcons.rag,
+      thought: "💡 It grounds answer generation in verified retrieved documents. How does that stop guessing?",
+      options: ["By grounding answer generation in factual retrieved document sources", "By doubling model parametric count to 1 trillion", "By turning off the generative model entirely", "By permanent removing all system prompts"],
+      answer: 0
+    }
+  ];
+
+  let currentIdx = 0;
+
+  const questionCounter = document.getElementById("question-counter");
+  const topicTag = document.getElementById("topic-tag");
+  const imageBox = document.getElementById("image-box");
+  const questionText = document.getElementById("question-text");
+  const thoughtText = document.getElementById("thought-text");
+  const optionsContainer = document.getElementById("options-container");
+  const feedback = document.getElementById("feedback");
+  const nextBtn = document.getElementById("next-btn");
+  const quizUI = document.getElementById("quiz-ui");
+  const endScreen = document.getElementById("end-screen");
+
+  function loadQuestion() {
+    const currentQ = quizData[currentIdx];
+    
+    questionCounter.innerText = `Question ${currentIdx + 1} of ${quizData.length}`;
+    topicTag.innerText = currentQ.tag;
+    imageBox.innerHTML = currentQ.svg;
+    questionText.innerText = currentQ.q;
+    thoughtText.innerText = currentQ.thought;
+    
+    optionsContainer.innerHTML = "";
+    feedback.className = "feedback";
+    feedback.style.display = "none";
+    nextBtn.style.display = "none";
+
+    currentQ.options.forEach((optText, index) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.innerText = optText;
+      btn.onclick = () => selectOption(index);
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function selectOption(selectedIndex) {
+    const currentQ = quizData[currentIdx];
+    const optionBtns = optionsContainer.querySelectorAll(".option-btn");
+
+    optionBtns.forEach(btn => btn.disabled = true);
+
+    if (selectedIndex === currentQ.answer) {
+      optionBtns[selectedIndex].classList.add("correct");
+      feedback.innerText = "✅ Good!";
+      feedback.className = "feedback correct-text";
+    } else {
+      optionBtns[selectedIndex].classList.add("wrong");
+      optionBtns[currentQ.answer].classList.add("correct");
+      feedback.innerText = `❌ Wrong! Correct answer: ${currentQ.options[currentQ.answer]}`;
+      feedback.className = "feedback wrong-text";
+    }
+
+    nextBtn.style.display = "block";
+  }
+
+  function nextQuestion() {
+    currentIdx++;
+    if (currentIdx < quizData.length) {
+      loadQuestion();
+    } else {
+      quizUI.style.display = "none";
+      endScreen.style.display = "block";
+    }
+  }
+
+  loadQuestion();
+</script>
+
+</body>
+</html>

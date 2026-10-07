@@ -1,0 +1,663 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tools and Applications - Quiz</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, #009bad, #216a02);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        }
+
+        .quiz-header h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .quiz-header p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .question-card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            border-left: 5px solid #009bad;
+        }
+
+        .question-number {
+            color: #009bad;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 18px;
+        }
+
+        .option {
+            display: block;
+            padding: 13px 15px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #fafafa;
+        }
+
+        .option:hover {
+            background: #eef9fa;
+            border-color: #009bad;
+        }
+
+        .option input {
+            margin-right: 10px;
+        }
+
+        .correct {
+            background: #e8f7e8 !important;
+            border-color: #4caf50 !important;
+        }
+
+        .wrong {
+            background: #fdeaea !important;
+            border-color: #e53935 !important;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 15px;
+            padding: 12px 15px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .submit-area {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        button {
+            background: #009bad;
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #007f8c;
+        }
+
+        #result {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        #score {
+            font-size: 38px;
+            font-weight: bold;
+            color: #009bad;
+        }
+
+        .progress {
+            height: 8px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #63b755;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="quiz-container">
+
+    <div class="quiz-header">
+        <h1>AI Tools and Applications</h1>
+        <p>PSCAA26 – Soft Skill I</p>
+        <p>10 Question Practice Quiz</p>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <form id="quizForm">
+
+        <!-- QUESTION 1 -->
+        <div class="question-card">
+            <div class="question-number">Question 1 of 10</div>
+
+            <div class="question">
+                A neural network produces an incorrect prediction during training. Which combination of processes enables the network to learn from this error and update its weights?
+            </div>
+
+            <label class="option">
+                <input type="radio" name="q1" value="A">
+                A. Activation functions followed by data normalization
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q1" value="B">
+                B. Loss calculation followed by backpropagation and gradient-based weight updates
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q1" value="C">
+                C. Input encoding followed by deletion of incorrect neurons
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q1" value="D">
+                D. Dataset labeling followed by forward propagation
+            </label>
+
+            <div class="explanation" id="e1">
+                The loss function measures the prediction error, and backpropagation calculates gradients that guide the adjustment of network weights.
+            </div>
+        </div>
+
+
+        <!-- QUESTION 2 -->
+        <div class="question-card">
+            <div class="question-number">Question 2 of 10</div>
+
+            <div class="question">
+                Which prompting method gives an AI model several examples so that it can infer the expected pattern before handling a new input?
+            </div>
+
+            <label class="option">
+                <input type="radio" name="q2" value="A">
+                A. Zero-shot prompting
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q2" value="B">
+                B. Few-shot prompting
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q2" value="C">
+                C. Model compression
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q2" value="D">
+                D. Vector indexing
+            </label>
+
+            <div class="explanation" id="e2">
+                Few-shot prompting places a small number of examples in the prompt to demonstrate the expected task pattern.
+            </div>
+        </div>
+
+
+        <!-- QUESTION 3 -->
+        <div class="question-card">
+            <div class="question-number">Question 3 of 10</div>
+
+            <div class="question">
+                In a RAG system, what is the main purpose of searching a vector database after the user's query has been converted into a suitable representation?
+            </div>
+
+            <label class="option">
+                <input type="radio" name="q3" value="A">
+                A. To retrain the foundation model using the complete database
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q3" value="B">
+                B. To remove all user input before the response is generated
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q3" value="C">
+                C. To retrieve knowledge chunks that are most semantically similar to the query
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q3" value="D">
+                D. To convert the retrieved documents into programming languages
+            </label>
+
+            <div class="explanation" id="e3">
+                The vector search identifies the most semantically relevant stored knowledge chunks, which can then be supplied as context to the language model.
+            </div>
+        </div>
+
+
+        <!-- QUESTION 4 -->
+        <div class="question-card">
+            <div class="question-number">Question 4 of 10</div>
+
+            <div class="question">
+                What distinguishes Supervised Fine-Tuning or Parameter-Efficient Fine-Tuning from ordinary Prompt Engineering?
+            </div>
+
+            <label class="option">
+                <input type="radio" name="q4" value="A">
+                A. Fine-tuning involves training-related parameter updates, whereas prompt engineering works by changing the instructions given to the existing model.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q4" value="B">
+                B. Fine-tuning only performs database searches, whereas prompt engineering requires GPU retraining.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q4" value="C">
+                C. Fine-tuning changes the computer hardware, whereas prompt engineering changes the network connection.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q4" value="D">
+                D. Fine-tuning only changes temperature settings, whereas prompt engineering permanently changes model weights.
+            </label>
+
+            <div class="explanation" id="e4">
+                Fine-tuning uses training data to modify model parameters or parameter-efficient adapters, while prompt engineering changes how the model is instructed without retraining its parameters.
+            </div>
+        </div>
+
+
+        <!-- QUESTION 5 -->
+        <div class="question-card">
+            <div class="question-number">Question 5 of 10</div>
+
+            <div class="question">
+                Which statement best explains why an LLM can sometimes respond with information that sounds convincing but is actually incorrect?
+            </div>
+
+            <label class="option">
+                <input type="radio" name="q5" value="A">
+                A. The model generates likely token sequences based on learned patterns rather than functioning as a guaranteed fact-checking database.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q5" value="B">
+                B. The model automatically performs a live internet search for every question.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q5" value="C">
+                C. The model permanently deletes its learned parameters after every conversation.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q5" value="D">
+                D. The model obtains every response from a fixed rule-based database.
+            </label>
+
+            <div class="explanation" id="e5">
+                LLMs generate text from learned statistical patterns and do not inherently guarantee that every generated statement is factually correct.
+            </div>
+        </div>
+
+
+        <!-- QUESTION 6 -->
+        <div class="question-card">
+            <div class="question-number">Question 6 of 10</div>
+
+            <div class="question">
+                Which design choice can help make an LLM response more reliable when the model may not have enough information to answer a factual question?
+            </div>
+
+            <label class="option">
+                <input type="radio" name="q6" value="A">
+                A. Tell the model to create an answer whenever information is missing.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q6" value="B">
+                B. Provide relevant source context and allow the model to acknowledge uncertainty.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q6" value="C">
+                C. Remove important information from the prompt.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q6" value="D">
+                D. Add unrelated information to make the prompt longer.
+            </label>
+
+            <div class="explanation" id="e6">
+                Relevant context gives the model information to work with, while an instruction to acknowledge uncertainty discourages unsupported fabrication.
+            </div>
+        </div>
+
+
+        <!-- QUESTION 7 -->
+        <div class="question-card">
+            <div class="question-number">Question 7 of 10</div>
+
+            <div class="question">
+                Hidden layers in a neural network perform an important transformation between the input and output. What do they primarily help the model learn?
+            </div>
+
+            <label class="option">
+                <input type="radio" name="q7" value="A">
+                A. Only the original raw input values
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q7" value="B">
+                B. Internal representations and increasingly complex feature relationships
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q7" value="C">
+                C. Permanent storage of vector embeddings in a database
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q7" value="D">
+                D. The final user interface displayed by an application
+            </label>
+
+            <div class="explanation" id="e7">
+                Hidden layers transform information and learn increasingly complex representations and feature relationships from the input.
+            </div>
+        </div>
+
+
+        <!-- QUESTION 8 -->
+        <div class="question-card">
+            <div class="question-number">Question 8 of 10</div>
+
+            <div class="question">
+                If two different LLMs are given exactly the same task, which factors should be considered when evaluating their responses?
+            </div>
+
+            <label class="option">
+                <input type="radio" name="q8" value="A">
+                A. Accuracy, relevance, explanation quality, and usefulness
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q8" value="B">
+                B. Monitor size, keyboard type, and computer manufacturer
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q8" value="C">
+                C. Browser theme, wallpaper, and screen resolution
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q8" value="D">
+                D. Internet connection speed alone
+            </label>
+
+            <div class="explanation" id="e8">
+                Meaningful LLM comparison should focus on the quality of the generated responses, including accuracy, relevance, explanation, creativity where appropriate, and usefulness.
+            </div>
+        </div>
+
+
+        <!-- QUESTION 9 -->
+        <div class="question-card">
+            <div class="question-number">Question 9 of 10</div>
+
+            <div class="question">
+                A lecturer has a dataset containing marks for 20 students. Which task could an AI-assisted analysis tool perform on this dataset?
+            </div>
+
+            <label class="option">
+                <input type="radio" name="q9" value="A">
+                A. Determine the highest mark and calculate the class average
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q9" value="B">
+                B. Physically upgrade the computer's RAM
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q9" value="C">
+                C. Replace the operating system automatically
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q9" value="D">
+                D. Increase the physical speed of the keyboard
+            </label>
+
+            <div class="explanation" id="e9">
+                AI-assisted data analysis can calculate statistics such as averages and identify records such as the highest-scoring student.
+            </div>
+        </div>
+
+
+        <!-- QUESTION 10 -->
+        <div class="question-card">
+            <div class="question-number">Question 10 of 10</div>
+
+            <div class="question">
+                Before publishing an AI-generated poster for a college awareness campaign, what should the user do?
+            </div>
+
+            <label class="option">
+                <input type="radio" name="q10" value="A">
+                A. Publish the first generated image without reviewing it.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q10" value="B">
+                B. Assume AI-generated content is automatically free from copyright concerns.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q10" value="C">
+                C. Review the image for bias, copyright concerns, misleading content, and inappropriate representation.
+            </label>
+
+            <label class="option">
+                <input type="radio" name="q10" value="D">
+                D. Avoid checking the image because AI tools guarantee appropriate content.
+            </label>
+
+            <div class="explanation" id="e10">
+                Responsible use requires reviewing AI-generated images for potential bias, copyright concerns, misleading content, and inappropriate representation before publication.
+            </div>
+        </div>
+
+
+        <div class="submit-area">
+            <button type="button" onclick="submitQuiz()">
+                Submit Quiz
+            </button>
+        </div>
+
+    </form>
+
+
+    <div id="result">
+        <h2>Quiz Completed</h2>
+        <div id="score">0 / 10</div>
+        <p id="message"></p>
+
+        <button type="button" onclick="location.reload()">
+            Try Again
+        </button>
+    </div>
+
+</div>
+
+
+<script>
+
+    const answers = {
+        q1: "B",
+        q2: "B",
+        q3: "C",
+        q4: "A",
+        q5: "A",
+        q6: "B",
+        q7: "B",
+        q8: "A",
+        q9: "A",
+        q10: "C"
+    };
+
+
+    function submitQuiz() {
+
+        let score = 0;
+        let answered = 0;
+
+        for (let i = 1; i <= 10; i++) {
+
+            const selected = document.querySelector(
+                'input[name="q' + i + '"]:checked'
+            );
+
+            const options = document.querySelectorAll(
+                'input[name="q' + i + '"]'
+            );
+
+            if (selected) {
+                answered++;
+            }
+
+            options.forEach(function(input) {
+
+                const label = input.closest(".option");
+
+                label.classList.remove("correct", "wrong");
+
+                if (input.value === answers["q" + i]) {
+                    label.classList.add("correct");
+                }
+
+                if (
+                    selected &&
+                    input === selected &&
+                    input.value !== answers["q" + i]
+                ) {
+                    label.classList.add("wrong");
+                }
+
+                input.disabled = true;
+            });
+
+
+            const explanation =
+                document.getElementById("e" + i);
+
+            explanation.style.display = "block";
+
+
+            if (
+                selected &&
+                selected.value === answers["q" + i]
+            ) {
+                score++;
+            }
+        }
+
+
+        document.getElementById("score").innerText =
+            score + " / 10";
+
+
+        let message = "";
+
+        if (score === 10) {
+            message =
+                "Excellent! You have a strong understanding of AI Tools and Applications.";
+        }
+        else if (score >= 8) {
+            message =
+                "Very Good! You have a good understanding of the concepts.";
+        }
+        else if (score >= 6) {
+            message =
+                "Good attempt. Review the explanations and try again.";
+        }
+        else if (score >= 4) {
+            message =
+                "Keep practicing. Review the AI concepts and attempt the quiz again.";
+        }
+        else {
+            message =
+                "More practice is recommended. Review the concepts and try again.";
+        }
+
+
+        document.getElementById("message").innerText =
+            message;
+
+
+        document.getElementById("result").style.display =
+            "block";
+
+
+        document.getElementById("result").scrollIntoView({
+            behavior: "smooth"
+        });
+
+
+        const percentage =
+            (answered / 10) * 100;
+
+        document.getElementById("progressBar").style.width =
+            percentage + "%";
+    }
+
+</script>
+
+</body>
+</html>

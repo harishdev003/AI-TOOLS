@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Large Language Models & Transformers Quiz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .quiz-card {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.125);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 800px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    /* Header & Progress */
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      transition: width 0.3s ease;
+    }
+
+    /* Visual Banner Container */
+    .banner-container {
+      width: 100%;
+      height: 180px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .banner-subtitle {
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #a855f7;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .banner-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .banner-desc {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      max-width: 90%;
+      line-height: 1.4;
+    }
+
+    /* Question & Options */
+    .question-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: #f1f5f9;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .option-btn {
+      background: rgba(51, 65, 85, 0.5);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: #f8fafc;
+      font-size: 1rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: #6366f1;
+      transform: translateY(-2px);
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.85;
+    }
+
+    /* Feedback Styles */
+    .option-btn.correct {
+      background: rgba(34, 197, 94, 0.2) !important;
+      border-color: #22c55e !important;
+      color: #4ade80 !important;
+      font-weight: 600;
+    }
+
+    .option-btn.wrong {
+      background: rgba(239, 68, 68, 0.2) !important;
+      border-color: #ef4444 !important;
+      color: #f87171 !important;
+    }
+
+    .feedback-message {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      animation: popIn 0.3s ease;
+    }
+
+    .feedback-message.correct-text { color: #4ade80; }
+    .feedback-message.wrong-text { color: #f87171; }
+
+    /* Footer Controls */
+    .footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      min-height: 48px;
+    }
+
+    .next-btn {
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+      transition: all 0.2s ease;
+      display: none;
+    }
+
+    .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+    }
+
+    /* Completion Screen */
+    .completion-container {
+      text-align: center;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .completion-icon {
+      font-size: 4rem;
+    }
+
+    .restart-btn {
+      background: linear-gradient(90deg, #38bdf8, #6366f1);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: transform 0.2s ease;
+    }
+
+    .restart-btn:hover {
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (max-width: 640px) {
+      .quiz-card { padding: 20px; }
+      .banner-container { height: 160px; padding: 15px; }
+      .banner-title { font-size: 1.3rem; }
+      .banner-desc { font-size: 0.8rem; }
+      .question-title { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="quiz-card" id="quizCard">
+  <!-- Header -->
+  <div class="header">
+    <div class="progress-info">
+      <span id="questionCount">Question 1 of 11</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
+
+  <!-- Visual Banner -->
+  <div class="banner-container" id="bannerContainer">
+    <div class="banner-subtitle" id="bannerCategory">Topic</div>
+    <div class="banner-title" id="bannerTitle">Title</div>
+    <div class="banner-desc" id="bannerDesc">Description</div>
+  </div>
+
+  <!-- Question -->
+  <div class="question-title" id="questionText">Loading question...</div>
+
+  <!-- Options Grid -->
+  <div class="options-grid" id="optionsContainer"></div>
+
+  <!-- Feedback Message -->
+  <div class="feedback-message" id="feedbackMessage"></div>
+
+  <!-- Footer Controls -->
+  <div class="footer">
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question ➔</button>
+  </div>
+</div>
+
+<script>
+  // Raw Question Pool
+  const rawQuestions = [
+    {
+      category: "BASICS OF LLM TRAINING",
+      bannerTitle: "From Web Text to AI Expert",
+      bannerDesc: "LLMs progress from reading raw internet text to speaking like expert assistants.",
+      question: "What is the foundational objective of an LLM during its initial training phase?",
+      correctAnswer: "Predicting the next word in a sequence based on raw data",
+      wrongAnswers: [
+        "Memorizing dictionary definitions word-for-word",
+        "Executing predefined SQL database queries",
+        "Evaluating human sentiment in social media posts"
+      ]
+    },
+    {
+      category: "ADVANCED AUTO-COMPLETE",
+      bannerTitle: "Core Model Functionality",
+      bannerDesc: "At its core, an LLM operates as an advanced prediction engine trained on trillions of paragraphs.",
+      question: "Which everyday feature provides the closest visual analogy to how an LLM functions at its base level?",
+      correctAnswer: "Mobile phone keyboard predictive auto-complete",
+      wrongAnswers: [
+        "A calculator performing matrix multiplication",
+        "A search engine returning web links",
+        "A file compressor reducing document size"
+      ]
+    },
+    {
+      category: "TOKENS AND VECTORS",
+      bannerTitle: "Data Representation",
+      bannerDesc: "Text is broken into tokens and converted into mathematical vectors for processing.",
+      question: "Why do LLMs convert split text tokens into long numerical vectors?",
+      correctAnswer: "Because computers require numerical structures to evaluate context and meaning",
+      wrongAnswers: [
+        "To compress the file size for internet streaming",
+        "To translate English words directly into foreign alphabets",
+        "To encrypt sensitive user information during processing"
+      ]
+    },
+    {
+      category: "THE TRAINING PIPELINE",
+      bannerTitle: "Pre-training (Self-Learning)",
+      bannerDesc: "The model reads massive internet archives to learn general grammar and broad world knowledge.",
+      question: "What primary knowledge does an LLM gain during the Pre-training stage?",
+      correctAnswer: "General linguistic structure, grammar, and broad world knowledge",
+      wrongAnswers: [
+        "Strict adherence to user safety guidelines",
+        "How to respond with polite, conversational tone",
+        "How to follow complex multi-step user prompts reliably"
+      ]
+    },
+    {
+      category: "THE TRAINING PIPELINE",
+      bannerTitle: "Supervised Fine-Tuning (SFT)",
+      bannerDesc: "Human trainers curate prompt-answer pairs to teach the model assistant-style behaviors.",
+      question: "What is the primary goal of Supervised Fine-Tuning (SFT)?",
+      correctAnswer: "To teach the model how to act like a helpful assistant using curated instruction pairs",
+      wrongAnswers: [
+        "To increase model processing speed on mobile devices",
+        "To remove all non-English text from the training dataset",
+        "To calculate exact mathematical formulas efficiently"
+      ]
+    },
+    {
+      category: "THE TRAINING PIPELINE",
+      bannerTitle: "Preference Alignment (RLHF / DPO)",
+      bannerDesc: "Outputs are evaluated to ensure safety, honesty, and alignment with human expectations.",
+      question: "What purpose does Preference Alignment (RLHF / DPO) serve in the LLM pipeline?",
+      correctAnswer: "It updates model logic to prioritize safe, honest, and helpful responses over harmful ones",
+      wrongAnswers: [
+        "It converts vector numerical representations back into alphabetic letters",
+        "It reduces the total parameter count of massive models",
+        "It increases the maximum memory length for long books"
+      ]
+    },
+    {
+      category: "THE TRANSFORMER ENGINE",
+      bannerTitle: "Self-Attention Mechanism",
+      bannerDesc: "Self-Attention enables models to connect related words across long distances instantly.",
+      question: "What major limitation of older sequence models did Self-Attention successfully resolve?",
+      correctAnswer: "Forgetting early words when analyzing long sentences or paragraphs",
+      wrongAnswers: [
+        "High storage cost of vector files",
+        "Inability to render images alongside text",
+        "Slow keyboard input speeds on desktop computers"
+      ]
+    },
+    {
+      category: "WHY ATTENTION MATTERS",
+      bannerTitle: "Disambiguating Context",
+      bannerDesc: "Consider the sentence: \"The bank of the river was muddy.\"",
+      question: "In the example above, how does Self-Attention ensure correct understanding of the word \"bank\"?",
+      correctAnswer: "It pairs \"bank\" with surrounding context words like \"river\"",
+      wrongAnswers: [
+        "It links \"bank\" to financial vault attributes automatically",
+        "It ignores \"bank\" entirely and focuses only on \"muddy\"",
+        "It alphabetizes all words in the sentence to find the root meaning"
+      ]
+    },
+    {
+      category: "QUERIES, KEYS, AND VALUES",
+      bannerTitle: "The Attention Mechanism",
+      bannerDesc: "Every word is evaluated using three structural roles: Queries (Q), Keys (K), and Values (V).",
+      question: "Which component represents what information a given word is actively searching for?",
+      correctAnswer: "Queries (Q)",
+      wrongAnswers: [
+        "Keys (K)",
+        "Values (V)",
+        "Softmax"
+      ]
+    },
+    {
+      category: "ATTENTION FORMULA",
+      bannerTitle: "Probabilistic Normalization",
+      bannerDesc: "Attention(Q, K, V) = softmax( (Q * K^T) / sqrt(d_k) ) * V",
+      question: "In the Transformer attention formula, what is the specific role of the softmax function?",
+      correctAnswer: "To normalize relevance scores into probabilistic weights across context words",
+      wrongAnswers: [
+        "To convert words into text tokens",
+        "To compress large 70B models for mobile storage",
+        "To check whether an answer contains factual errors"
+      ]
+    },
+    {
+      category: "TOKENS, SIZE & TRADE-OFFS",
+      bannerTitle: "LLM Size Classes",
+      bannerDesc: "Models range from small on-device models (1B–8B) to massive frontier models (70B+).",
+      question: "What is a primary advantage of Small / On-device models (1B to 8B parameters)?",
+      correctAnswer: "Extremely fast performance with the ability to run directly on laptops or phones",
+      wrongAnswers: [
+        "Superior multi-step reasoning compared to frontier models",
+        "Unlimited context window size without memory constraints",
+        "Zero latency when processing complex multi-language tasks in cloud centers"
+      ]
+    }
+  ];
+
+  // Helper function: Fisher-Yates Shuffle
+  function shuffleArray(array) {
+    let shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  // Pre-process and randomize options for each question
+  const quizData = rawQuestions.map(item => {
+    const allOptions = [item.correctAnswer, ...item.wrongAnswers];
+    const randomizedOptions = shuffleArray(allOptions);
+    const correctIndex = randomizedOptions.indexOf(item.correctAnswer);
+
+    return {
+      category: item.category,
+      bannerTitle: item.bannerTitle,
+      bannerDesc: item.bannerDesc,
+      question: item.question,
+      options: randomizedOptions,
+      correct: correctIndex
+    };
+  });
+
+  let currentQuestionIndex = 0;
+
+  // DOM Elements
+  const questionCountEl = document.getElementById("questionCount");
+  const progressPercentEl = document.getElementById("progressPercent");
+  const progressBarEl = document.getElementById("progressBar");
+  const bannerCategoryEl = document.getElementById("bannerCategory");
+  const bannerTitleEl = document.getElementById("bannerTitle");
+  const bannerDescEl = document.getElementById("bannerDesc");
+  const questionTextEl = document.getElementById("questionText");
+  const optionsContainerEl = document.getElementById("optionsContainer");
+  const feedbackMessageEl = document.getElementById("feedbackMessage");
+  const nextBtn = document.getElementById("nextBtn");
+  const quizCardEl = document.getElementById("quizCard");
+
+  function loadQuestion() {
+    const q = quizData[currentQuestionIndex];
+
+    // Reset States
+    feedbackMessageEl.textContent = "";
+    feedbackMessageEl.className = "feedback-message";
+    nextBtn.style.display = "none";
+
+    // Progress updates
+    const currentNum = currentQuestionIndex + 1;
+    const totalNum = quizData.length;
+    const percent = Math.round(((currentNum - 1) / totalNum) * 100);
+
+    questionCountEl.textContent = `Question ${currentNum} of ${totalNum}`;
+    progressPercentEl.textContent = `${percent}%`;
+    progressBarEl.style.width = `${percent}%`;
+
+    // Banner updates
+    bannerCategoryEl.textContent = q.category;
+    bannerTitleEl.textContent = q.bannerTitle;
+    bannerDescEl.textContent = q.bannerDesc;
+
+    // Question Text
+    questionTextEl.textContent = q.question;
+
+    // Render Options
+    optionsContainerEl.innerHTML = "";
+    q.options.forEach((optText, index) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.innerHTML = `<span>${optText}</span>`;
+      btn.onclick = () => selectOption(index);
+      optionsContainerEl.appendChild(btn);
+    });
+  }
+
+  function selectOption(selectedIndex) {
+    const q = quizData[currentQuestionIndex];
+    const optionButtons = optionsContainerEl.querySelectorAll(".option-btn");
+
+    // Disable all options
+    optionButtons.forEach(btn => btn.disabled = true);
+
+    if (selectedIndex === q.correct) {
+      // Correct
+      optionButtons[selectedIndex].classList.add("correct");
+      optionButtons[selectedIndex].innerHTML += ` <span>✓</span>`;
+      feedbackMessageEl.textContent = "Correct!";
+      feedbackMessageEl.className = "feedback-message correct-text";
+    } else {
+      // Wrong
+      optionButtons[selectedIndex].classList.add("wrong");
+      optionButtons[selectedIndex].innerHTML += ` <span>✕</span>`;
+      
+      // Highlight correct answer
+      optionButtons[q.correct].classList.add("correct");
+      optionButtons[q.correct].innerHTML += ` <span>✓</span>`;
+
+      feedbackMessageEl.textContent = "Wrong!";
+      feedbackMessageEl.className = "feedback-message wrong-text";
+    }
+
+    // Show Next Button
+    nextBtn.style.display = "block";
+  }
+
+  function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < quizData.length) {
+      loadQuestion();
+    } else {
+      showCompletion();
+    }
+  }
+
+  function showCompletion() {
+    progressBarEl.style.width = "100%";
+    progressPercentEl.textContent = "100%";
+
+    quizCardEl.innerHTML = `
+      <div class="completion-container">
+        <div class="completion-icon">🎉</div>
+        <h2>Module Complete!</h2>
+        <p style="color: #cbd5e1;">You've successfully completed all questions on Large Language Models & Transformers.</p>
+        <button class="restart-btn" onclick="location.reload()">Restart Quiz</button>
+      </div>
+    `;
+  }
+
+  // Initialize
+  loadQuestion();
+</script>
+
+</body>
+</html>

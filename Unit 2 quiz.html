@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Optimization Strategies Quiz</title>
+    <!-- Tailwind CSS for modern, responsive utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            deep: '#0F172A', // Slate 900
+                            card: '#1E293B', // Slate 800
+                            accent: '#6366F1', // Indigo 500
+                            success: '#10B981', // Emerald 500
+                            danger: '#EF4444', // Red 500
+                            text: '#F8FAFC' // Slate 50
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Modern custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0F172A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-brand-deep text-brand-text min-h-screen flex flex-col items-center justify-center p-4 font-sans selection:bg-brand-accent selection:text-white">
+
+    <!-- Quiz Main Card Container -->
+    <div class="w-full max-w-2xl bg-brand-card rounded-2xl shadow-2xl border border-slate-700/50 p-6 md:p-8 transition-all duration-300 relative overflow-hidden">
+        
+        <!-- Header Background Glow -->
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-accent via-purple-500 to-pink-500"></div>
+
+        <!-- Header Progress Indicator -->
+        <div class="flex items-center justify-between mb-6">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">LLM Optimization Challenge</span>
+            <span id="question-progress" class="text-sm font-medium text-brand-accent bg-brand-accent/10 px-3 py-1 rounded-full border border-brand-accent/20">Question 1 of 20</span>
+        </div>
+
+        <!-- Question Text Block -->
+        <div class="mb-6">
+            <h2 id="question-text" class="text-lg md:text-xl font-semibold leading-relaxed text-slate-100">
+                Loading question...
+            </h2>
+        </div>
+
+        <!-- Options Form Container -->
+        <div id="options-container" class="space-y-3.5 mb-8">
+            <!-- Dynamic options injected here -->
+        </div>
+
+        <!-- Context Grounding & Explanation Box (Initially Hidden) -->
+        <div id="explanation-box" class="hidden mb-6 p-4 rounded-xl border transition-all duration-300">
+            <div class="flex items-center gap-2 mb-1.5">
+                <span id="explanation-badge" class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                    Correct
+                </span>
+                <span class="text-xs text-slate-400 font-medium">Source Grounding Reference</span>
+            </div>
+            <p id="explanation-text" class="text-sm text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <!-- Footer Actions Bar -->
+        <div class="flex items-center justify-end">
+            <button id="next-button" class="hidden items-center justify-center gap-2 bg-brand-accent hover:bg-indigo-600 text-white font-semibold px-6 py-2.5 rounded-xl transition-all duration-200 transform active:scale-95 shadow-lg shadow-brand-accent/20 border border-indigo-400/20">
+                <span>Next Question</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Final Scoreless Finish Overlay Container (Initially Hidden) -->
+    <div id="quiz-completed-card" class="hidden w-full max-w-md bg-brand-card rounded-2xl shadow-2xl border border-slate-700/50 p-8 text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 to-brand-accent"></div>
+        
+        <!-- Animated Completion Icon -->
+        <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-500/20 animate-bounce">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+            </svg>
+        </div>
+
+        <h2 class="text-2xl font-bold text-slate-100 mb-3">Quiz Completed!</h2>
+        <p class="text-sm text-slate-300 leading-relaxed mb-6">
+            You have gone through all 20 grounded questions testing Prompting, RAG, and Fine-Tuning optimization strategies based on your source materials.
+        </p>
+        
+        <button onclick="window.location.reload();" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-100 font-semibold py-2.5 rounded-xl transition-all duration-200 border border-slate-600 active:scale-95">
+            Restart Quiz
+        </button>
+    </div>
+
+    <!-- Main Quiz Logic and Question Data Ingestion -->
+    <script>
+        // Grounded Question Dataset containing 20 questions directly from the presentations.
+        const quizData = [
+            {
+                id: 1,
+                question: "In the context of customization trade-offs, which analogy is explicitly used in the slides to describe Prompt Engineering?",
+                options: [
+                    "Putting a fresh graduate through an intensive 6-month specialized medical residency program.",
+                    "Handing a highly capable engineer a detailed SOP and reference manual before they start a specific job.",
+                    "Hiring an external consulting firm to audit a company's database infrastructure.",
+                    "Retraining a chess champion with entirely new rules and pieces."
+                ],
+                correctIndex: 1,
+                explanation: "The source analogizes Prompt Engineering to handing a highly capable engineer a detailed standard operating procedure (SOP) and reference manual before they start a job [7]."
+            },
+            {
+                id: 2,
+                question: "Which of the following analogies is explicitly used in the sources to describe Supervised Fine-Tuning (SFT)?",
+                options: [
+                    "Hiring a security guard who has an open radio link to the police headquarters.",
+                    "Answering a completely open-book exam using a dynamic indexing catalog.",
+                    "Putting a fresh graduate through an intensive 6-month specialized medical or tax law residency program.",
+                    "Writing code on a local IDE while having the documentation open on a second monitor."
+                ],
+                correctIndex: 2,
+                explanation: "The source analogizes Supervised Fine-Tuning to putting a fresh graduate through a 6-month specialized medical or tax law residency to update core parameters [13]."
+            },
+            {
+                id: 3,
+                question: "According to the customizing trade-off matrix, what is the primary purpose of Supervised Fine-Tuning (PEFT/LoRA)?",
+                options: [
+                    "Adding external dynamic knowledge and real-time facts.",
+                    "Changing tone, format, style, and syntax behavior.",
+                    "Increasing model parameters to trillions of weights.",
+                    "Completely eliminating the need for any inference token usage."
+                ],
+                correctIndex: 1,
+                explanation: "According to the trade-off matrix, the primary purpose of Supervised Fine-Tuning is changing tone, format, style, and syntax behavior. In contrast, Prompting + RAG is for adding external dynamic knowledge and facts [16]."
+            },
+            {
+                id: 4,
+                question: "When evaluating 'Hallucination Control', how do Prompting + RAG and Supervised Fine-Tuning compare in the trade-off matrix?",
+                options: [
+                    "SFT is better because it permanently updates model weights; RAG relies on unreliable vector databases.",
+                    "Prompting + RAG has better control because it grounds answers in source facts; SFT is moderate as it can memorize false facts.",
+                    "Both strategies provide 100% perfect hallucination control with zero error.",
+                    "Neither strategy has any impact on hallucination rates."
+                ],
+                correctIndex: 1,
+                explanation: "The trade-off matrix notes that Prompting + RAG is better for hallucination control because RAG provides grounded source facts. SFT's control is moderate because the model can memorize false parametric facts [16, 17]."
+            },
+            {
+                id: 5,
+                question: "Which Indian enterprise architecture case study is highlighted in the slides as using Claude 3.5 Sonnet for medical record synthesis?",
+                options: [
+                    "A BFSI compliance assistant self-hosted in a private AWS India Cloud.",
+                    "A BPO customer support automation pipeline utilizing a Hinglish Mistral model.",
+                    "A healthcare and diagnostics system combined with strict human-in-the-loop validation.",
+                    "A legal analysis assistant used to draft regulatory compliance transcripts."
+                ],
+                correctIndex: 2,
+                explanation: "The Healthcare & Diagnostics case study utilized Claude 3.5 Sonnet via prompt engineering for medical record synthesis combined with strict human-in-the-loop validation [23]."
+            },
+            {
+                id: 6,
+                question: "In the BPO and Customer Support case study, what strategy did the enterprise execute to capture colloquial Indian phrasings?",
+                options: [
+                    "Prompt engineered GPT-4o with zero-shot translation files.",
+                    "Fine-tuned Mistral 7B on historical Hinglish support transcripts.",
+                    "Implemented an SQL-based database retrieval system with RAG.",
+                    "Redesigned the Transformer architecture's self-attention layers."
+                ],
+                correctIndex: 1,
+                explanation: "For BPO & Customer Support, the strategy was to fine-tune Mistral 7B on historical Hinglish support transcripts to capture colloquial Indian phrasings, optimizing API response times [22]."
+            },
+            {
+                id: 7,
+                question: "In the BFSI (Banking & Insurance) case study, how was the self-hosted LLaMA 3 model deployed and utilized?",
+                options: [
+                    "As a public-facing API hosted in Google Cloud with no external knowledge base.",
+                    "Fine-tuned on RBI compliance regulations combined with RAG, self-hosted within a private AWS India Cloud.",
+                    "Deployed locally on consumer laptops for basic translation scripts.",
+                    "Utilized in zero-shot mode to generate synthetic credit cards."
+                ],
+                correctIndex: 1,
+                explanation: "The BFSI strategy involved a self-hosted LLaMA 3 model, fine-tuned on RBI compliance regulations + RAG for customer loan query handling within a private AWS India Cloud [20]."
+            },
+            {
+                id: 8,
+                question: "According to the trade-off matrix, what is a key cost-related advantage of Fine-Tuning over Prompting + RAG?",
+                options: [
+                    "Fine-Tuning has zero upfront capital and training hardware expenses.",
+                    "Fine-Tuning eliminates all API security overhead completely.",
+                    "Fine-Tuning reduces prompt latency and per-request token costs by eliminating long instructions.",
+                    "Fine-Tuning requires far larger data prompts at runtime, enabling more in-context examples."
+                ],
+                correctIndex: 2,
+                explanation: "Fine-Tuning allows for reduced prompt latency and lower per-request token costs because it eliminates lengthy instruction prompts, reducing runtime context token overhead [14, 16]."
+            },
+            {
+                id: 9,
+                question: "Which model from the 'Modern LLM Landscape' is described as an open-weights leader that allows developers to fine-tune and host on custom hardware?",
+                options: [
+                    "OpenAI GPT-4o",
+                    "Anthropic Claude 3.5 Sonnet",
+                    "Google Gemini 1.5 Pro",
+                    "Meta LLaMA 3"
+                ],
+                correctIndex: 3,
+                explanation: "The slides describe Meta LLaMA 3 as the open-weights leader that allows developers to download, fine-tune, and host models on custom hardware without recurring API subscription fees [194, 218]."
+            },
+            {
+                id: 10,
+                question: "Which LLM model pioneered the Mixture-of-Experts (MoE) architecture and is lightweight enough to run locally on high-end laptops?",
+                options: [
+                    "Claude 3.5 Sonnet",
+                    "Mistral / Mixtral",
+                    "GPT-4o",
+                    "Gemini 1.5 Pro"
+                ],
+                correctIndex: 1,
+                explanation: "Mistral/Mixtral pioneered the high-efficiency Mixture-of-Experts (MoE) architecture, lightweight enough to run locally on consumer laptops or edge devices [196, 218]."
+            },
+            {
+                id: 11,
+                question: "What unique capability does Google Gemini 1 Pro offer in the comparisons presented?",
+                options: [
+                    "It has an exclusive local self-hosting feature that bypasses all cloud integration.",
+                    "It offers a massive 1 Million Token Context window and native connection to Google Workspace and Drive.",
+                    "It is a fully open-source model designed specifically for Edge devices.",
+                    "It completely eliminates the probability engine step during token generation."
+                ],
+                correctIndex: 1,
+                explanation: "Google Gemini 1.5 Pro is recognized for its 1 Million Token Context window, native integration into Google Workspace (Gmail, Drive, Docs), and real-time web grounding via Google Search [212, 214]."
+            },
+            {
+                id: 12,
+                question: "In the end-to-end generation pipeline of Generative AI, what is the role of the 'Attention' mechanism?",
+                options: [
+                    "It converts text character-by-character into localized dictionary indexes.",
+                    "It parses text into vector embeddings to represent absolute semantic proximity.",
+                    "It calculates mathematical relationship weights across tokens in parallel.",
+                    "It queries a vector database for relevant historical document fragments."
+                ],
+                correctIndex: 2,
+                explanation: "During the generation pipeline, the attention layer in the Transformer calculates relationship weights across parsed tokens in parallel to process their mathematical relationships [43, 49]."
+            },
+            {
+                id: 13,
+                question: "What is the primary difference between Predictive/Discriminative AI and Generative AI?",
+                options: [
+                    "Predictive AI creates new code and text; Generative AI only works with pre-existing labels.",
+                    "Predictive AI analyzes or evaluates existing data to learn decision boundaries; Generative AI models distributions to synthesize brand-new tokens.",
+                    "Predictive AI has a static training cutoff; Generative AI natively updates itself hourly.",
+                    "There is no difference; they are identical terms for the same neural network structure."
+                ],
+                correctIndex: 1,
+                explanation: "The slide contrasts Predictive/Discriminative AI (which classifies or evaluates existing data by learning decision boundaries) with Generative AI (which models joint distributions to synthesize completely new tokens from scratch) [29]."
+            },
+            {
+                id: 14,
+                question: "In prompt engineering, what is the 'Few-Shot' prompting paradigm?",
+                options: [
+                    "Executing a task directly with zero instruction or demonstration examples.",
+                    "Providing a few input-output demonstration exemplars in the prompt so the model learns context without updating weights.",
+                    "Injecting thousands of database pairs into model layers to retrain model weights.",
+                    "Breaking down complex mathematical steps using explicit multi-step reasoning guidelines."
+                ],
+                correctIndex: 1,
+                explanation: "Few-Shot prompting involves providing a few demonstration exemplars before asking the target question, allowing 'In-Context Learning' without updating network weights [59, 70]."
+            },
+            {
+                id: 15,
+                question: "What is a limitation of the Zero-Shot prompting paradigm?",
+                options: [
+                    "It requires very high context token usage and adds massive latency.",
+                    "It requires downloading the model weights onto custom hardware.",
+                    "It may struggle with complex reasoning or niche formatting.",
+                    "It is completely incompatible with modern LLMs like GPT-4."
+                ],
+                correctIndex: 2,
+                explanation: "While Zero-Shot is highly concise and token-efficient, its major limitation is that it can struggle with complex reasoning or strict, niche formatting requirements [65]."
+            },
+            {
+                id: 16,
+                question: "How does Chain-of-Thought (CoT) prompting help reduce mathematical and logical errors?",
+                options: [
+                    "It updates the weight matrices of the pre-trained Transformer model dynamically.",
+                    "It automatically executes python scripts in the background to verify calculations.",
+                    "It guides the model to generate intermediate reasoning steps, often triggered by 'Let's think step by step'.",
+                    "It bypasses the tokenization pipeline completely to speed up computation."
+                ],
+                correctIndex: 2,
+                explanation: "Chain-of-Thought (CoT) prompting encourages the LLM to generate intermediate reasoning steps before outputting the final answer, which reduces logical errors dramatically [59, 73, (multimodal_34)]."
+            },
+            {
+                id: 17,
+                question: "Which of the following is an analogy used in the slides to describe how RAG functions?",
+                options: [
+                    "A student answering a closed-book oral exam purely from their memory.",
+                    "Taking an open-book exam using an index catalog to search external documents.",
+                    "A graduate attending a medical residency to learn specialized diagnostic skills.",
+                    "A chess machine calculating trillions of future moves in milliseconds."
+                ],
+                correctIndex: 1,
+                explanation: "RAG is analogized to taking an open-book exam using an index catalog, contrasting with a standard LLM which acts like answering from memory [84]."
+            },
+            {
+                id: 18,
+                question: "In the RAG architecture, what is the role of the 'Retriever'?",
+                options: [
+                    "To generate the final natural language response based on statistical probability.",
+                    "To translate text into high-dimensional embedding vectors.",
+                    "To search the vector database and fetch the top 'K' most similar knowledge chunks.",
+                    "To host the pre-trained open weights model on custom hardware."
+                ],
+                correctIndex: 2,
+                explanation: "In RAG, the Retriever's role is to search the vector database and fetch the top 'K' most similar knowledge chunks based on similarity metrics [108]."
+            },
+            {
+                id: 19,
+                question: "What is a major limitation or challenge faced by RAG systems?",
+                options: [
+                    "Extremely high upfront capital cost to retrain model weights.",
+                    "Risk of retrieval failure (garbage in, garbage out if vector DB retrieves irrelevant context) and added database latency.",
+                    "Inability to handle private data securely without leaking to public models.",
+                    "RAG makes the model's knowledge cutoff permanently locked in time."
+                ],
+                correctIndex: 1,
+                explanation: "RAG challenges include retrieval failure risks (if the DB search fails or embeddings are poor quality, leading to 'garbage in, garbage out') and added latency from the search step [134]."
+            },
+            {
+                id: 20,
+                question: "Which of the following is NOT listed in the sources as a way to mitigate and reduce AI hallucinations?",
+                options: [
+                    "Setting the temperature parameter high (e.g., temp = 2.0) to encourage maximum creativity and randomness.",
+                    "Constraining prompting ('Answer ONLY using the provided text...').",
+                    "Deploying RAG to ground the model's context in verified database documents.",
+                    "Enforcing exact citations, page numbers, and URL references."
+                ],
+                correctIndex: 0,
+                explanation: "To reduce hallucinations, you should lower the temperature setting (e.g., set temp = 0.0 for facts), not raise it to high levels like 2.0, which increases randomness and hallucination risk [172]."
+            }
+        ];
+
+        // State variables to track quiz progression
+        let currentIdx = 0;
+        let isLocked = false;
+
+        // Cache elements
+        const progressEl = document.getElementById('question-progress');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const explanationBoxEl = document.getElementById('explanation-box');
+        const explanationBadgeEl = document.getElementById('explanation-badge');
+        const explanationTextEl = document.getElementById('explanation-text');
+        const nextButtonEl = document.getElementById('next-button');
+        const quizCardEl = document.querySelector('.bg-brand-card');
+        const quizCompletedCardEl = document.getElementById('quiz-completed-card');
+
+        // Render the current question
+        function renderQuestion() {
+            isLocked = false;
+            explanationBoxEl.classList.add('hidden');
+            nextButtonEl.classList.add('hidden');
+
+            const currentQ = quizData[currentIdx];
+            
+            // Progress update
+            progressEl.innerText = `Question ${currentIdx + 1} of 20`;
+            questionTextEl.innerText = currentQ.question;
+
+            // Clear container
+            optionsContainerEl.innerHTML = '';
+
+            // Inject option buttons
+            currentQ.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = "w-full text-left p-4 rounded-xl border border-slate-700 hover:border-slate-600 bg-slate-800/40 hover:bg-slate-800/80 transition-all duration-200 focus:outline-none flex items-start gap-3 group relative overflow-hidden";
+                btn.innerHTML = `
+                    <span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700/50 text-slate-300 font-semibold text-xs group-hover:bg-brand-accent group-hover:text-white transition-colors duration-200 shrink-0 mt-0.5">
+                        ${String.fromCharCode(65 + index)}
+                    </span>
+                    <span class="text-slate-200 text-sm md:text-base font-medium leading-relaxed">${option}</span>
+                `;
+                btn.addEventListener('click', () => selectOption(index));
+                optionsContainerEl.appendChild(btn);
+            });
+        }
+
+        // Handle option click
+        function selectOption(selectedIdx) {
+            if (isLocked) return;
+            isLocked = true;
+
+            const currentQ = quizData[currentIdx];
+            const optionButtons = optionsContainerEl.children;
+
+            // Visual markers for selection
+            const isCorrect = (selectedIdx === currentQ.correctIndex);
+
+            for (let i = 0; i < optionButtons.length; i++) {
+                const btn = optionButtons[i];
+                // Disable physical focus/hover states
+                btn.classList.remove('hover:border-slate-600', 'hover:bg-slate-800/80', 'group');
+                btn.classList.add('cursor-default');
+
+                const numBadge = btn.querySelector('span');
+
+                if (i === currentQ.correctIndex) {
+                    // Highlight the correct option (green)
+                    btn.classList.add('border-emerald-500/50', 'bg-emerald-500/10');
+                    btn.querySelector('span:nth-child(2)').classList.add('text-emerald-400', 'font-semibold');
+                    numBadge.classList.add('bg-emerald-500', 'text-white');
+                    numBadge.innerHTML = '✓';
+                } else if (i === selectedIdx && !isCorrect) {
+                    // Highlight the clicked wrong option (red)
+                    btn.classList.add('border-red-500/50', 'bg-red-500/10');
+                    btn.querySelector('span:nth-child(2)').classList.add('text-red-400');
+                    numBadge.classList.add('bg-red-500', 'text-white');
+                    numBadge.innerHTML = '✕';
+                } else {
+                    // Fade out other non-selected options
+                    btn.classList.add('opacity-40');
+                }
+            }
+
+            // Grounding & Explanation Configuration
+            explanationTextEl.innerText = currentQ.explanation;
+            if (isCorrect) {
+                explanationBoxEl.className = "mb-6 p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 transition-all duration-300 block";
+                explanationBadgeEl.className = "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400";
+                explanationBadgeEl.innerText = "Correct";
+            } else {
+                explanationBoxEl.className = "mb-6 p-4 rounded-xl border border-red-500/20 bg-red-500/5 transition-all duration-300 block";
+                explanationBadgeEl.className = "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-500/20 text-red-400";
+                explanationBadgeEl.innerText = "Incorrect";
+            }
+
+            // Show explanation box and reveal next button
+            explanationBoxEl.classList.remove('hidden');
+            nextButtonEl.classList.remove('hidden');
+            nextButtonEl.classList.add('flex');
+        }
+
+        // Navigation Next question
+        nextButtonEl.addEventListener('click', () => {
+            currentIdx++;
+            if (currentIdx < quizData.length) {
+                renderQuestion();
+            } else {
+                // Completed State Transition
+                quizCardEl.classList.add('hidden');
+                quizCompletedCardEl.classList.remove('hidden');
+            }
+        });
+
+        // Initialize first render
+        renderQuestion();
+    </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative AI & Prompting Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:not(:disabled):hover {
+            background-color: #f3f4f6;
+            border-color: #3b82f6;
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .locked {
+            cursor: not-allowed;
+        }
+        #feedback-area {
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-2xl w-full bg-white rounded-xl shadow-lg p-8">
+        <!-- Header -->
+        <div class="mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold text-slate-800">Generative AI & Prompting</h1>
+            <p class="text-slate-500 text-sm">Test your knowledge on GenAI fundamentals and techniques.</p>
+        </div>
+
+        <!-- Question Container -->
+        <div id="quiz-container">
+            <div id="question-text" class="text-lg font-medium text-slate-700 mb-6">
+                <!-- Question goes here -->
+            </div>
+
+            <div id="options-container" class="space-y-3">
+                <!-- Options go here -->
+            </div>
+
+            <!-- Feedback Message -->
+            <div id="feedback-area" class="mt-6 font-bold text-center text-lg hidden">
+                <!-- Correct/Wrong message -->
+            </div>
+
+            <!-- Next Button -->
+            <div class="mt-8 flex justify-end">
+                <button id="next-btn" class="hidden bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Next Question →
+                </button>
+            </div>
+        </div>
+
+        <!-- Completion View -->
+        <div id="completion-view" class="hidden text-center py-10">
+            <div class="text-5xl mb-4">🎉</div>
+            <h2 class="text-2xl font-bold text-slate-800">Quiz Complete!</h2>
+            <p class="text-slate-600 mt-2">You've reached the end of the Generative AI study set.</p>
+            <button onclick="location.reload()" class="mt-6 text-blue-600 font-medium hover:underline">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "According to the comparison between Predictive and Generative AI, what is the core mechanism of Predictive AI?",
+                options: [
+                    "Models joint distribution to synthesize brand-new tokens",
+                    "Learns decision boundaries to classify input labels",
+                    "Creating original, high-fidelity content from scratch",
+                    "Synthesizing 3D assets and code"
+                ],
+                correct: 1,
+                rationale: "Predictive AI aims to analyze or classify existing data using decision boundaries, whereas GenAI focuses on creation."
+            },
+            {
+                question: "In technical terms, which probability distribution model is associated specifically with Generative AI?",
+                options: [
+                    "$P(Y|X)$",
+                    "$P(X,Y)$",
+                    "$P(A+B)$",
+                    "$P(Z|Y)$"
+                ],
+                correct: 1,
+                rationale: "Generative AI models the joint distribution $P(X,Y)$ to understand how data is generated, while Predictive models $P(Y|X)$ for classification."
+            },
+            {
+                question: "Which 'Technical Pillar' of modern GenAI uses a self-attention mechanism to process mathematical relationships across tokens in parallel?",
+                options: [
+                    "Reinforcement Learning (RLHF)",
+                    "Tokenization Embeddings",
+                    "Transformer Architecture",
+                    "Binary Classification"
+                ],
+                correct: 2,
+                rationale: "The Transformer Architecture is defined by its ability to process sequences in parallel using self-attention."
+            },
+            {
+                question: "What is the primary goal of 'Few-Shot Prompting'?",
+                options: [
+                    "Asking the AI to perform a task without any examples",
+                    "Providing input-output demonstration exemplars to teach context",
+                    "Breaking down reasoning into logical steps",
+                    "Reducing the token usage to the absolute minimum"
+                ],
+                correct: 1,
+                rationale: "Few-shot prompting uses 'In-Context Learning' by showing the model pairs of examples to follow a specific pattern."
+            },
+            {
+                question: "Which step in the End-to-End Generation Pipeline converts input text into vector tokens that encode semantic proximity?",
+                options: [
+                    "Prompt Input",
+                    "Self-Attention",
+                    "Tokenization",
+                    "RLHF Alignment"
+                ],
+                correct: 2,
+                rationale: "Tokenization (and embedding) is the stage where text becomes numerical data that computers can process based on meaning."
+            },
+            {
+                question: "When using 'Chain-of-Thought' prompting, what are you specifically guiding the model to do?",
+                options: [
+                    "Provide a very short, one-word answer",
+                    "Follow a rigid JSON structure",
+                    "Break down complex multi-step reasoning into logical steps",
+                    "Translate text into a different language automatically"
+                ],
+                correct: 2,
+                rationale: "Chain-of-Thought (CoT) encourages the model to 'think' through intermediate steps before arriving at a final conclusion."
+            },
+            {
+                question: "Which of the following is an essential 'Prompt Element' used to provide background info or domain constraints?",
+                options: [
+                    "Instruction",
+                    "Context",
+                    "Input Data",
+                    "Output Indicator"
+                ],
+                correct: 1,
+                rationale: "The 'Context' element provides the necessary background or constraints to narrow down the model's focus."
+            },
+            {
+                question: "What does the term 'Hallucinations' refer to in the context of Generative AI?",
+                options: [
+                    "When a model generates content too slowly",
+                    "When a model confidently asserts false or inaccurate information",
+                    "The process of converting images into text",
+                    "The model's ability to learn from human feedback"
+                ],
+                correct: 1,
+                rationale: "Hallucinations occur when a model synthesizes original but factually incorrect outputs, requiring human verification."
+            },
+            {
+                question: "How does GenAI turn a text prompt like 'Astronaut on Mars' into an image?",
+                options: [
+                    "By searching Google Images for that specific phrase",
+                    "By mapping concepts and spatial contexts from visual datasets",
+                    "By copy-pasting existing digital art",
+                    "By using simple filters on a stock photo"
+                ],
+                correct: 1,
+                rationale: "It uses concept association to map keywords to visual patterns learned during training to synthesize a novel image."
+            },
+            {
+                question: "Which prompt paradigm relies on massive pre-training to execute tasks instantly without any prior demonstrations?",
+                options: [
+                    "Few-Shot Prompting",
+                    "Chain-of-Thought Prompting",
+                    "Zero-Shot Prompting",
+                    "Reinforcement Learning"
+                ],
+                correct: 2,
+                rationale: "Zero-shot prompting asks the model to perform a task directly, relying entirely on its internal pre-trained knowledge."
+            }
+        ];
+
+        let currentQuestion = 0;
+
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackArea = document.getElementById('feedback-area');
+        const nextBtn = document.getElementById('next-btn');
+        const quizContainer = document.getElementById('quiz-container');
+        const completionView = document.getElementById('completion-view');
+
+        function loadQuestion() {
+            const data = quizData[currentQuestion];
+            questionText.textContent = `${currentQuestion + 1}. ${data.question}`;
+            optionsContainer.innerHTML = '';
+            feedbackArea.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+
+            data.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.innerHTML = option;
+                button.className = "option-btn w-full text-left p-4 rounded-lg border-2 border-slate-200 font-medium text-slate-700 bg-white";
+                button.onclick = () => selectOption(index);
+                optionsContainer.appendChild(button);
+            });
+            
+            // Re-render MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function selectOption(index) {
+            const data = quizData[currentQuestion];
+            const buttons = optionsContainer.querySelectorAll('button');
+
+            // Lock all buttons
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('locked');
+            });
+
+            if (index === data.correct) {
+                buttons[index].classList.add('correct');
+                feedbackArea.textContent = "✅ Correct!";
+                feedbackArea.className = "mt-6 font-bold text-center text-lg text-emerald-600";
+            } else {
+                buttons[index].classList.add('wrong');
+                buttons[data.correct].classList.add('correct');
+                feedbackArea.textContent = `❌ Wrong. The correct answer was: ${data.options[data.correct]}`;
+                feedbackArea.className = "mt-6 font-bold text-center text-lg text-red-600";
+            }
+
+            feedbackArea.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+
+        nextBtn.onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                quizContainer.classList.add('hidden');
+                completionView.classList.remove('hidden');
+            }
+        };
+
+        // Initialize
+        loadQuestion();
+    </script>
+</body>
+</html>
